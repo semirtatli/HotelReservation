@@ -1,0 +1,22 @@
+# Build outputs
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Sensitive configuration
+appsettings.json
+appsettings.*.json
+!appsettings.example.json
+!appsettings.Development.json
+
+# NuGet
+*.nupkg
+.nuget/
+
+# Logs
+*.log
+logs/
