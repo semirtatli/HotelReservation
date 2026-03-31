@@ -1,10 +1,11 @@
-﻿
 using HotelReservation.Application.DTO;
 using HotelReservation.Application.Interfaces;
 using HotelReservation.Application.RepositoryInterfaces;
 using HotelReservation.Domain.Entities;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Text;
 
 namespace HotelReservation.Application.Services
@@ -12,21 +13,58 @@ namespace HotelReservation.Application.Services
     public class CustomerService : ICustomerService
     {
         private readonly ICustomerRepository _customerRepository;
-        public CustomerService(ICustomerRepository _customerRepository) { 
+        public CustomerService(ICustomerRepository _customerRepository)
+        {
             this._customerRepository = _customerRepository;
         }
 
         public void AddCustomer(CustomerRequest customerRequest)
         {
-            var customer = new Customer
-            (
-                customerRequest.name,
-               customerRequest.DateOfBirth
-            );
-            // Implementation for adding a customer to the database or in-memory collection
-            // This is a placeholder and should be replaced with actual data access code
+            var dob = DateOnly.ParseExact(customerRequest.DateOfBirth, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+            var customer = new Customer(customerRequest.Name, dob);
             _customerRepository.AddCustomer(customer);
-            Console.WriteLine($"Customer added: Name={customer.Name}, DateOfBirth={customer.DateOfBirth}");
+        }
+
+        public List<CustomerResponse> GetAllCustomers()
+        {
+            var customers = _customerRepository.GetAllCustomers();
+            return customers.Select(c => new CustomerResponse
+            {
+                Id = c.Id,
+                Name = c.Name,
+                DateOfBirth = c.DateOfBirth.ToString("dd/MM/yyyy")
+            }).ToList();
+        }
+
+        public CustomerResponse GetCustomerById(Guid id)
+        {
+            var customer = _customerRepository.GetCustomerById(id);
+            return new CustomerResponse
+            {
+                Id = customer.Id,
+                Name = customer.Name,
+                DateOfBirth = customer.DateOfBirth.ToString("dd/MM/yyyy")
+            };
+        }
+
+        public CustomerResponse UpdateCustomer(Guid id, UpdateCustomerRequest updateCustomerRequest)
+        {
+            var dob = DateOnly.ParseExact(updateCustomerRequest.DateOfBirth, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+            var customerEntity = new Customer(updateCustomerRequest.Name, dob);
+            var result = _customerRepository.UpdateCustomer(id, customerEntity);
+            if (!result) throw new Exception("Customer not found");
+            return new CustomerResponse { Name = customerEntity.Name, DateOfBirth = customerEntity.DateOfBirth.ToString("dd/MM/yyyy") };
+        }
+
+        public CustomerResponse DeleteCustomer(Guid id)
+        {
+            var deletedCustomer = _customerRepository.DeleteCustomer(id);
+            return new CustomerResponse
+            {
+                Id = deletedCustomer.Id,
+                Name = deletedCustomer.Name,
+                DateOfBirth = deletedCustomer.DateOfBirth.ToString("dd/MM/yyyy")
+            };
         }
     }
 }

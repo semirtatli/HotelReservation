@@ -1,12 +1,13 @@
-﻿using HotelReservation.Application.DTO;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using HotelReservation.Application.DTO;
 
 namespace HotelReservation.Application.Interfaces
 {
     public interface ICustomerService
     {
         public void AddCustomer(CustomerRequest customerRequest);
+        public List<CustomerResponse> GetAllCustomers();
+        public CustomerResponse GetCustomerById(Guid id);
+        public CustomerResponse UpdateCustomer(Guid id, UpdateCustomerRequest request);
+        public CustomerResponse DeleteCustomer(Guid id);
     }
 }

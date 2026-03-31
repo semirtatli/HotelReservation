@@ -5,8 +5,8 @@ namespace HotelReservation.Domain.Entities
     public class Hotel
     {
         public Guid Id { get; private set; }
-        public string Name { get; private set; } = string.Empty;
-        public List<Room> Rooms { get; private set; } = new List<Room>();
+        public string Name { get; private set; }
+        
 
         public Hotel( string name)
         {
@@ -14,7 +14,14 @@ namespace HotelReservation.Domain.Entities
             Id = Guid.NewGuid();
             Name = name;
             
-            
         }
+
+        public void UpdateName(string name) {
+
+            this.Name = name;
+        
+        }
+
+        
     }
 }

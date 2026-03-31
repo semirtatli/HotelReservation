@@ -19,5 +19,17 @@ namespace HotelReservation.Domain.Entities
             Price = price;
             HotelId = hotelId;
         }
+
+        public void UpdateCapacity(int capacity)
+        {
+            if (capacity <= 0) throw new ArgumentOutOfRangeException(nameof(capacity));
+            Capacity = capacity;
+        }
+
+        public void UpdatePrice(decimal price)
+        {
+            if (price < 0) throw new ArgumentOutOfRangeException(nameof(price));
+            Price = price;
+        }
     }
 }

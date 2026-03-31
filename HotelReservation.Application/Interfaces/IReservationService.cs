@@ -1,12 +1,12 @@
-﻿using HotelReservation.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using HotelReservation.Application.DTO;
 
 namespace HotelReservation.Application.Interfaces
 {
     public interface IReservationService
     {
-        public void AddReservation(Reservation reservation);
+        public ReservationResponse AddReservation(CreateReservationRequest request);
+        public List<ReservationResponse> GetAllReservations();
+        public ReservationResponse GetReservationById(Guid id);
+        public ReservationResponse DeleteReservation(Guid id);
     }
 }

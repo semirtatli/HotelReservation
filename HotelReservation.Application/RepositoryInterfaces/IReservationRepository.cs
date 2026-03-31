@@ -1,7 +1,4 @@
-﻿using HotelReservation.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using HotelReservation.Domain.Entities;
 
 namespace HotelReservation.Application.RepositoryInterfaces
 {
@@ -9,5 +6,8 @@ namespace HotelReservation.Application.RepositoryInterfaces
     {
         public void AddReservation(Reservation reservation);
         public bool IsRoomAvailable(Guid roomId, DateTime checkInDate, DateTime checkOutDate);
+        public List<Reservation> GetAllReservations();
+        public Reservation GetReservationById(Guid id);
+        public Reservation DeleteReservation(Guid id);
     }
 }

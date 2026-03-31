@@ -4,9 +4,9 @@ using System.Text;
 
 namespace HotelReservation.Application.DTO
 {
-    public class CustomerRequest
+    public class HotelResponse
     {
+        public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public string DateOfBirth { get; set;} = string.Empty;
     }
 }

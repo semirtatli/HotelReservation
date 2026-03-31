@@ -1,12 +1,12 @@
-﻿using System;
+﻿using HotelReservation.Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace HotelReservation.Application.DTO
 {
-    public class CustomerRequest
+    public class CreateHotelRequest
     {
         public string Name { get; set; } = string.Empty;
-        public string DateOfBirth { get; set;} = string.Empty;
     }
 }

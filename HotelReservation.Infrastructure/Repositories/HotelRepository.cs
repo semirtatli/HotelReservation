@@ -1,4 +1,5 @@
-﻿using HotelReservation.Application.Interfaces;
+﻿using HotelReservation.Application.DTO;
+using HotelReservation.Application.Interfaces;
 using HotelReservation.Application.RepositoryInterfaces;
 using HotelReservation.Domain.Entities;
 using HotelReservation.Infrastructure.Data;
@@ -19,6 +20,44 @@ namespace HotelReservation.Infrastructure.Repositories
         {
             _context.Hotels.Add(hotel);
             _context.SaveChanges();
+        }
+
+        public bool UpdateHotel(Guid id, Hotel hotel)
+        {
+            var existingHotel = _context.Hotels.Find(id);
+            if (existingHotel != null)
+            {
+                existingHotel.UpdateName(hotel.Name);
+                _context.SaveChanges();
+                return true;
+            }
+            return false;
+        }
+
+        public List<Hotel> GetAllHotels() {
+            return _context.Hotels.ToList();
+        }
+
+        public Hotel GetHotelById(Guid id)
+        {
+            var hotel = _context.Hotels.Find(id);
+            if (hotel is null) { 
+                throw new Exception("Hotel not found");
+            }
+            return hotel;
+        }
+
+        public Hotel DeleteHotel(Guid id)
+        {
+            var hotel = _context.Hotels.Find(id);
+            if (hotel != null)
+            {
+                
+                _context.Hotels.Remove(hotel);
+                _context.SaveChanges();
+                return hotel;
+            }
+            throw new Exception("Hotel not found");
         }
     }
 }
