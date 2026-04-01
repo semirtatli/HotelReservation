@@ -1,3 +1,4 @@
+using FluentValidation;
 using HotelReservation.Domain.Exceptions;
 using System.Text.Json;
 
@@ -29,6 +30,7 @@ namespace HotelReservation.API.Middleware
             var statusCode = exception switch
             {
                 NotFoundException => StatusCodes.Status404NotFound,
+                ValidationException => StatusCodes.Status400BadRequest,
                 ArgumentException => StatusCodes.Status400BadRequest,
                 _ => StatusCodes.Status500InternalServerError
             };
@@ -36,7 +38,11 @@ namespace HotelReservation.API.Middleware
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = statusCode;
 
-            var response = new { statusCode, message = exception.Message };
+            var message = exception is ValidationException validationException
+                ? string.Join(", ", validationException.Errors.Select(e => e.ErrorMessage))
+                : exception.Message;
+
+            var response = new { statusCode, message };
             await context.Response.WriteAsync(JsonSerializer.Serialize(response));
         }
     }

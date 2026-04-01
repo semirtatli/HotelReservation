@@ -7,6 +7,7 @@ namespace HotelReservation.Application.Interfaces
         public ReservationResponse AddReservation(CreateReservationRequest request);
         public List<ReservationResponse> GetAllReservations();
         public ReservationResponse GetReservationById(Guid id);
+        public ReservationResponse UpdateReservation(Guid id, UpdateReservationRequest request);
         public ReservationResponse DeleteReservation(Guid id);
     }
 }

@@ -10,7 +10,7 @@ namespace HotelReservation.Application.RepositoryInterfaces
     {
         public void AddHotel(Hotel hotel);
 
-        public bool UpdateHotel(Guid id, Hotel hotel);
+        public Hotel UpdateHotel(Guid id, Hotel hotel);
 
         public List<Hotel> GetAllHotels();
 

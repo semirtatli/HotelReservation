@@ -7,7 +7,7 @@ namespace HotelReservation.Application.RepositoryInterfaces
         public void AddRoom(Room room);
         public List<Room> GetAllRooms();
         public Room GetRoomById(Guid id);
-        public bool UpdateRoom(Guid id, Room room);
+        public Room UpdateRoom(Guid id, Room room);
         public Room DeleteRoom(Guid id);
     }
 }

@@ -37,5 +37,18 @@ namespace HotelReservation.Domain.Entities
             TotalPrice = totalPrice;
         }
 
+        public void Update(DateTime checkInDate, DateTime checkOutDate, int numberOfGuests, decimal roomPrice)
+        {
+            if (checkInDate >= checkOutDate)
+                throw new ArgumentException("Check-out date must be after check-in date.");
+            if (checkInDate <= DateTime.UtcNow)
+                throw new ArgumentException("Check-in date must be in the future.");
+            if (numberOfGuests <= 0)
+                throw new ArgumentException("Number of guests must be greater than zero.");
+            CheckInDate = checkInDate;
+            CheckOutDate = checkOutDate;
+            NumberOfGuests = numberOfGuests;
+            TotalPrice = roomPrice * (checkOutDate - checkInDate).Days;
+        }
     }
 }

@@ -1,3 +1,4 @@
+using FluentValidation;
 using HotelReservation.Application.DTO;
 using HotelReservation.Application.Interfaces;
 using HotelReservation.Application.RepositoryInterfaces;
@@ -13,14 +14,20 @@ namespace HotelReservation.Application.Services
     public class RoomService : IRoomService
     {
         private readonly IRoomRepository _roomRepository;
+        private readonly IValidator<CreateRoomRequest> _createRoomRequestValidator;
+        private readonly IValidator<UpdateRoomRequest> _updateRoomRequestValidator;
 
-        public RoomService(IRoomRepository _roomRepository)
+        public RoomService(IRoomRepository _roomRepository, IValidator<CreateRoomRequest> createRoomRequestValidator, IValidator<UpdateRoomRequest> updateRoomRequestValidator)
         {
             this._roomRepository = _roomRepository;
+            _createRoomRequestValidator = createRoomRequestValidator;
+            _updateRoomRequestValidator = updateRoomRequestValidator;
         }
 
         public RoomResponse AddRoom(CreateRoomRequest createRoomRequest)
         {
+            _createRoomRequestValidator.ValidateAndThrow(createRoomRequest);
+
             var roomEntity = new Room(createRoomRequest.Capacity, createRoomRequest.Price, createRoomRequest.HotelId);
             _roomRepository.AddRoom(roomEntity);
             return new RoomResponse { Id = roomEntity.Id, Capacity = roomEntity.Capacity, Price = roomEntity.Price, HotelId = roomEntity.HotelId };
@@ -46,10 +53,11 @@ namespace HotelReservation.Application.Services
 
         public RoomResponse UpdateRoom(Guid id, UpdateRoomRequest updateRoomRequest)
         {
+            _updateRoomRequestValidator.ValidateAndThrow(updateRoomRequest);
+
             var roomEntity = new Room(updateRoomRequest.Capacity, updateRoomRequest.Price, Guid.Empty);
-            var result = _roomRepository.UpdateRoom(id, roomEntity);
-            if (!result) throw new NotFoundException("Room not found");
-            return new RoomResponse { Capacity = roomEntity.Capacity, Price = roomEntity.Price };
+            var updatedRoom = _roomRepository.UpdateRoom(id, roomEntity);
+            return new RoomResponse { Id = updatedRoom.Id, Capacity = updatedRoom.Capacity, Price = updatedRoom.Price, HotelId = updatedRoom.HotelId };
         }
 
         public RoomResponse DeleteRoom(Guid id)

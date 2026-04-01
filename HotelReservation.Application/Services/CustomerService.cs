@@ -1,3 +1,4 @@
+using FluentValidation;
 using HotelReservation.Application.DTO;
 using HotelReservation.Application.Interfaces;
 using HotelReservation.Application.RepositoryInterfaces;
@@ -14,13 +15,20 @@ namespace HotelReservation.Application.Services
     public class CustomerService : ICustomerService
     {
         private readonly ICustomerRepository _customerRepository;
-        public CustomerService(ICustomerRepository _customerRepository)
+        private readonly IValidator<CustomerRequest> _customerRequestValidator;
+        private readonly IValidator<UpdateCustomerRequest> _updateCustomerRequestValidator;
+
+        public CustomerService(ICustomerRepository _customerRepository, IValidator<CustomerRequest> customerRequestValidator, IValidator<UpdateCustomerRequest> updateCustomerRequestValidator)
         {
             this._customerRepository = _customerRepository;
+            _customerRequestValidator = customerRequestValidator;
+            _updateCustomerRequestValidator = updateCustomerRequestValidator;
         }
 
         public void AddCustomer(CustomerRequest customerRequest)
         {
+            _customerRequestValidator.ValidateAndThrow(customerRequest);
+
             var dob = DateOnly.ParseExact(customerRequest.DateOfBirth, "dd/MM/yyyy", CultureInfo.InvariantCulture);
             var customer = new Customer(customerRequest.Name, dob);
             _customerRepository.AddCustomer(customer);
@@ -50,11 +58,12 @@ namespace HotelReservation.Application.Services
 
         public CustomerResponse UpdateCustomer(Guid id, UpdateCustomerRequest updateCustomerRequest)
         {
+            _updateCustomerRequestValidator.ValidateAndThrow(updateCustomerRequest);
+
             var dob = DateOnly.ParseExact(updateCustomerRequest.DateOfBirth, "dd/MM/yyyy", CultureInfo.InvariantCulture);
             var customerEntity = new Customer(updateCustomerRequest.Name, dob);
-            var result = _customerRepository.UpdateCustomer(id, customerEntity);
-            if (!result) throw new NotFoundException("Customer not found");
-            return new CustomerResponse { Name = customerEntity.Name, DateOfBirth = customerEntity.DateOfBirth.ToString("dd/MM/yyyy") };
+            var updatedCustomer = _customerRepository.UpdateCustomer(id, customerEntity);
+            return new CustomerResponse { Id = updatedCustomer.Id, Name = updatedCustomer.Name, DateOfBirth = updatedCustomer.DateOfBirth.ToString("dd/MM/yyyy") };
         }
 
         public CustomerResponse DeleteCustomer(Guid id)

@@ -45,6 +45,25 @@ namespace HotelReservation.Infrastructure.Repositories
             return reservation;
         }
 
+        public Reservation UpdateReservation(Guid id, DateTime checkInDate, DateTime checkOutDate, int numberOfGuests)
+        {
+            var reservation = _context.Reservations.Find(id);
+            if (reservation is null) throw new NotFoundException("Reservation not found");
+
+            var hasConflict = _context.Reservations.Any(r =>
+                r.Id != id &&
+                r.RoomId == reservation.RoomId &&
+                r.CheckInDate < checkOutDate &&
+                r.CheckOutDate > checkInDate
+            );
+            if (hasConflict) throw new Exception("Room is not available for the selected dates.");
+
+            var room = _context.Rooms.Find(reservation.RoomId)!;
+            reservation.Update(checkInDate, checkOutDate, numberOfGuests, room.Price);
+            _context.SaveChanges();
+            return reservation;
+        }
+
         public Reservation DeleteReservation(Guid id)
         {
             var reservation = _context.Reservations.Find(id);

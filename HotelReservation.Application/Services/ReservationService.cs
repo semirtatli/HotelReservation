@@ -1,3 +1,4 @@
+using FluentValidation;
 using HotelReservation.Application.DTO;
 using HotelReservation.Application.Interfaces;
 using HotelReservation.Application.RepositoryInterfaces;
@@ -13,16 +14,21 @@ namespace HotelReservation.Application.Services
     {
         private readonly IReservationRepository _reservationRepository;
         private readonly IRoomRepository _roomRepository;
+        private readonly IValidator<CreateReservationRequest> _createReservationRequestValidator;
+        private readonly IValidator<UpdateReservationRequest> _updateReservationRequestValidator;
 
-        public ReservationService(IReservationRepository _reservationRepository, IRoomRepository roomRepository)
+        public ReservationService(IReservationRepository _reservationRepository, IRoomRepository roomRepository, IValidator<CreateReservationRequest> createReservationRequestValidator, IValidator<UpdateReservationRequest> updateReservationRequestValidator)
         {
             this._reservationRepository = _reservationRepository;
             _roomRepository = roomRepository;
-
+            _createReservationRequestValidator = createReservationRequestValidator;
+            _updateReservationRequestValidator = updateReservationRequestValidator;
         }
 
         public ReservationResponse AddReservation(CreateReservationRequest createReservationRequest)
         {
+            _createReservationRequestValidator.ValidateAndThrow(createReservationRequest);
+
             var checkIn = DateTime.SpecifyKind(createReservationRequest.CheckInDate, DateTimeKind.Utc);
             var checkOut = DateTime.SpecifyKind(createReservationRequest.CheckOutDate, DateTimeKind.Utc);
 
@@ -64,6 +70,26 @@ namespace HotelReservation.Application.Services
         public ReservationResponse GetReservationById(Guid id)
         {
             var reservation = _reservationRepository.GetReservationById(id);
+            return new ReservationResponse
+            {
+                Id = reservation.Id,
+                CheckInDate = reservation.CheckInDate,
+                CheckOutDate = reservation.CheckOutDate,
+                CustomerId = reservation.CustomerId,
+                RoomId = reservation.RoomId,
+                NumberOfGuests = reservation.NumberOfGuests,
+                TotalPrice = reservation.TotalPrice
+            };
+        }
+
+        public ReservationResponse UpdateReservation(Guid id, UpdateReservationRequest updateReservationRequest)
+        {
+            _updateReservationRequestValidator.ValidateAndThrow(updateReservationRequest);
+
+            var checkIn = DateTime.SpecifyKind(updateReservationRequest.CheckInDate, DateTimeKind.Utc);
+            var checkOut = DateTime.SpecifyKind(updateReservationRequest.CheckOutDate, DateTimeKind.Utc);
+
+            var reservation = _reservationRepository.UpdateReservation(id, checkIn, checkOut, updateReservationRequest.NumberOfGuests);
             return new ReservationResponse
             {
                 Id = reservation.Id,

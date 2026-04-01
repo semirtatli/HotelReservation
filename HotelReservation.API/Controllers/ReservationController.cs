@@ -29,6 +29,13 @@ namespace HotelReservation.API.Controllers
             return Ok(reservation);
         }
 
+        [HttpPut("{id}")]
+        public ActionResult UpdateReservation(Guid id, [FromBody] UpdateReservationRequest updateReservationRequest)
+        {
+            var response = service.UpdateReservation(id, updateReservationRequest);
+            return Ok(response);
+        }
+
         [HttpDelete("{id}")]
         public ActionResult DeleteReservation(Guid id)
         {

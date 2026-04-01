@@ -1,4 +1,5 @@
-﻿using HotelReservation.Application.DTO;
+﻿using FluentValidation;
+using HotelReservation.Application.DTO;
 using HotelReservation.Application.Interfaces;
 using HotelReservation.Application.RepositoryInterfaces;
 using HotelReservation.Domain.Entities;
@@ -13,14 +14,20 @@ namespace HotelReservation.Application.Services
     public class HotelService : IHotelService
     {
         private readonly IHotelRepository _hotelRepository;
+        private readonly IValidator<CreateHotelRequest> _createHotelRequestValidator;
+        private readonly IValidator<UpdateHotelRequest> _updateHotelRequestValidator;
 
-        public HotelService(IHotelRepository _hotelRepository)
+        public HotelService(IHotelRepository _hotelRepository, IValidator<CreateHotelRequest> createHotelRequestValidator, IValidator<UpdateHotelRequest> updateHotelRequestValidator)
         {
             this._hotelRepository = _hotelRepository;
+            _createHotelRequestValidator = createHotelRequestValidator;
+            _updateHotelRequestValidator = updateHotelRequestValidator;
         }
 
         public HotelResponse AddHotel(CreateHotelRequest CreateHotelRequest)
         {
+            _createHotelRequestValidator.ValidateAndThrow(CreateHotelRequest);
+
             var HotelEntity = new Hotel
             (
                 CreateHotelRequest.Name
@@ -31,16 +38,11 @@ namespace HotelReservation.Application.Services
 
         public HotelResponse UpdateHotel(Guid id, UpdateHotelRequest UpdateHotelRequest)
         {
-            var HotelEntity = new Hotel
-            (
-                UpdateHotelRequest.Name
-            );
-            var result = _hotelRepository.UpdateHotel(id, HotelEntity);
-            if(!result)
-            {
-                throw new NotFoundException("Hotel not found");
-            }
-            return new HotelResponse { Name = HotelEntity.Name };
+            _updateHotelRequestValidator.ValidateAndThrow(UpdateHotelRequest);
+
+            var HotelEntity = new Hotel(UpdateHotelRequest.Name);
+            var updatedHotel = _hotelRepository.UpdateHotel(id, HotelEntity);
+            return new HotelResponse { Id = updatedHotel.Id, Name = updatedHotel.Name };
         }
 
         public List<HotelResponse> GetAllHotels()

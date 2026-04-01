@@ -23,16 +23,13 @@ namespace HotelReservation.Infrastructure.Repositories
             _context.SaveChanges();
         }
 
-        public bool UpdateHotel(Guid id, Hotel hotel)
+        public Hotel UpdateHotel(Guid id, Hotel hotel)
         {
             var existingHotel = _context.Hotels.Find(id);
-            if (existingHotel != null)
-            {
-                existingHotel.UpdateName(hotel.Name);
-                _context.SaveChanges();
-                return true;
-            }
-            return false;
+            if (existingHotel is null) throw new NotFoundException("Hotel not found");
+            existingHotel.UpdateName(hotel.Name);
+            _context.SaveChanges();
+            return existingHotel;
         }
 
         public List<Hotel> GetAllHotels() {

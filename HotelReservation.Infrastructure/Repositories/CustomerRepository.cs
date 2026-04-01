@@ -34,17 +34,14 @@ namespace HotelReservation.Infrastructure.Repositories
             return customer;
         }
 
-        public bool UpdateCustomer(Guid id, Customer customer)
+        public Customer UpdateCustomer(Guid id, Customer customer)
         {
             var existingCustomer = _context.Customers.Find(id);
-            if (existingCustomer != null)
-            {
-                existingCustomer.UpdateName(customer.Name);
-                existingCustomer.UpdateDateOfBirth(customer.DateOfBirth);
-                _context.SaveChanges();
-                return true;
-            }
-            return false;
+            if (existingCustomer is null) throw new NotFoundException("Customer not found");
+            existingCustomer.UpdateName(customer.Name);
+            existingCustomer.UpdateDateOfBirth(customer.DateOfBirth);
+            _context.SaveChanges();
+            return existingCustomer;
         }
 
         public Customer DeleteCustomer(Guid id)

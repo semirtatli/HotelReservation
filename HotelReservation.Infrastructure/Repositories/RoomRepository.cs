@@ -34,17 +34,14 @@ namespace HotelReservation.Infrastructure.Repositories
             return room;
         }
 
-        public bool UpdateRoom(Guid id, Room room)
+        public Room UpdateRoom(Guid id, Room room)
         {
             var existingRoom = _context.Rooms.Find(id);
-            if (existingRoom != null)
-            {
-                existingRoom.UpdateCapacity(room.Capacity);
-                existingRoom.UpdatePrice(room.Price);
-                _context.SaveChanges();
-                return true;
-            }
-            return false;
+            if (existingRoom is null) throw new NotFoundException("Room not found");
+            existingRoom.UpdateCapacity(room.Capacity);
+            existingRoom.UpdatePrice(room.Price);
+            _context.SaveChanges();
+            return existingRoom;
         }
 
         public Room DeleteRoom(Guid id)

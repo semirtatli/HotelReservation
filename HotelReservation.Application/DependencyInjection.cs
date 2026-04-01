@@ -1,6 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using FluentValidation;
+using Microsoft.Extensions.DependencyInjection;
 using HotelReservation.Application.Interfaces;
 using HotelReservation.Application.Services;
+using HotelReservation.Application.Validators;
 
 namespace HotelReservation.Application
 {
@@ -9,7 +11,7 @@ namespace HotelReservation.Application
         public static IServiceCollection AddApplication(
             this IServiceCollection services)
         {
-            
+            services.AddValidatorsFromAssemblyContaining<CreateHotelRequestValidator>();
 
             // Service’ler
             services.AddScoped<IReservationService, ReservationService>();
