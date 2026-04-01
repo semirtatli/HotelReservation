@@ -2,6 +2,7 @@ using HotelReservation.Application.DTO;
 using HotelReservation.Application.Interfaces;
 using HotelReservation.Application.RepositoryInterfaces;
 using HotelReservation.Domain.Entities;
+using HotelReservation.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,7 +48,7 @@ namespace HotelReservation.Application.Services
         {
             var roomEntity = new Room(updateRoomRequest.Capacity, updateRoomRequest.Price, Guid.Empty);
             var result = _roomRepository.UpdateRoom(id, roomEntity);
-            if (!result) throw new Exception("Room not found");
+            if (!result) throw new NotFoundException("Room not found");
             return new RoomResponse { Capacity = roomEntity.Capacity, Price = roomEntity.Price };
         }
 

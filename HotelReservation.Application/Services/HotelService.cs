@@ -2,6 +2,7 @@
 using HotelReservation.Application.Interfaces;
 using HotelReservation.Application.RepositoryInterfaces;
 using HotelReservation.Domain.Entities;
+using HotelReservation.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,7 +38,7 @@ namespace HotelReservation.Application.Services
             var result = _hotelRepository.UpdateHotel(id, HotelEntity);
             if(!result)
             {
-                throw new Exception("Hotel not found");
+                throw new NotFoundException("Hotel not found");
             }
             return new HotelResponse { Name = HotelEntity.Name };
         }

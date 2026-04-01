@@ -1,5 +1,6 @@
 using HotelReservation.Application;
 using HotelReservation.Infrastructure;
+using HotelReservation.API.Middleware;
 using Scalar.AspNetCore;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 

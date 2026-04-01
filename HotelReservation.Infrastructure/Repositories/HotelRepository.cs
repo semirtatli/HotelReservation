@@ -2,6 +2,7 @@
 using HotelReservation.Application.Interfaces;
 using HotelReservation.Application.RepositoryInterfaces;
 using HotelReservation.Domain.Entities;
+using HotelReservation.Domain.Exceptions;
 using HotelReservation.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
@@ -42,7 +43,7 @@ namespace HotelReservation.Infrastructure.Repositories
         {
             var hotel = _context.Hotels.Find(id);
             if (hotel is null) { 
-                throw new Exception("Hotel not found");
+                throw new NotFoundException("Hotel not found");
             }
             return hotel;
         }
@@ -57,7 +58,7 @@ namespace HotelReservation.Infrastructure.Repositories
                 _context.SaveChanges();
                 return hotel;
             }
-            throw new Exception("Hotel not found");
+            throw new NotFoundException("Hotel not found");
         }
     }
 }

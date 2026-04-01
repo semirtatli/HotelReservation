@@ -2,6 +2,7 @@ using HotelReservation.Application.DTO;
 using HotelReservation.Application.Interfaces;
 using HotelReservation.Application.RepositoryInterfaces;
 using HotelReservation.Domain.Entities;
+using HotelReservation.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -52,7 +53,7 @@ namespace HotelReservation.Application.Services
             var dob = DateOnly.ParseExact(updateCustomerRequest.DateOfBirth, "dd/MM/yyyy", CultureInfo.InvariantCulture);
             var customerEntity = new Customer(updateCustomerRequest.Name, dob);
             var result = _customerRepository.UpdateCustomer(id, customerEntity);
-            if (!result) throw new Exception("Customer not found");
+            if (!result) throw new NotFoundException("Customer not found");
             return new CustomerResponse { Name = customerEntity.Name, DateOfBirth = customerEntity.DateOfBirth.ToString("dd/MM/yyyy") };
         }
 

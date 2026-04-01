@@ -1,5 +1,6 @@
 using HotelReservation.Application.RepositoryInterfaces;
 using HotelReservation.Domain.Entities;
+using HotelReservation.Domain.Exceptions;
 using HotelReservation.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
@@ -29,7 +30,7 @@ namespace HotelReservation.Infrastructure.Repositories
         public Room GetRoomById(Guid id)
         {
             var room = _context.Rooms.Find(id);
-            if (room is null) throw new Exception("Room not found");
+            if (room is null) throw new NotFoundException("Room not found");
             return room;
         }
 
@@ -55,7 +56,7 @@ namespace HotelReservation.Infrastructure.Repositories
                 _context.SaveChanges();
                 return room;
             }
-            throw new Exception("Room not found");
+            throw new NotFoundException("Room not found");
         }
     }
 }
