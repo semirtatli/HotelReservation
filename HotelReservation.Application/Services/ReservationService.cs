@@ -12,10 +12,13 @@ namespace HotelReservation.Application.Services
     public class ReservationService : IReservationService
     {
         private readonly IReservationRepository _reservationRepository;
+        private readonly IRoomRepository _roomRepository;
 
-        public ReservationService(IReservationRepository _reservationRepository)
+        public ReservationService(IReservationRepository _reservationRepository, IRoomRepository roomRepository)
         {
             this._reservationRepository = _reservationRepository;
+            _roomRepository = roomRepository;
+
         }
 
         public ReservationResponse AddReservation(CreateReservationRequest createReservationRequest)
@@ -26,7 +29,10 @@ namespace HotelReservation.Application.Services
             if (!_reservationRepository.IsRoomAvailable(createReservationRequest.RoomId, checkIn, checkOut))
                 throw new Exception("Room is not available for the selected dates.");
 
-            var reservationEntity = new Reservation(checkIn, checkOut, createReservationRequest.CustomerId, createReservationRequest.RoomId, createReservationRequest.NumberOfGuests, createReservationRequest.TotalPrice);
+            var room = _roomRepository.GetRoomById(createReservationRequest.RoomId);
+            var totalPrice = room.Price * (checkOut - checkIn).Days;
+
+            var reservationEntity = new Reservation(checkIn, checkOut, createReservationRequest.CustomerId, createReservationRequest.RoomId, createReservationRequest.NumberOfGuests, totalPrice);
             _reservationRepository.AddReservation(reservationEntity);
             return new ReservationResponse
             {

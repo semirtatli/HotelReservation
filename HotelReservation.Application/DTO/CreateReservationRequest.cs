@@ -7,6 +7,5 @@ namespace HotelReservation.Application.DTO
         public Guid CustomerId { get; set; }
         public Guid RoomId { get; set; }
         public int NumberOfGuests { get; set; }
-        public decimal TotalPrice { get; set; }
     }
 }
