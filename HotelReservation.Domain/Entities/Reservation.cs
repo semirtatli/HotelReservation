@@ -6,8 +6,8 @@ namespace HotelReservation.Domain.Entities
     public class Reservation
     {
         public Guid Id { get; private set; }
-        public DateTime CheckInDate { get; private set; }
-        public DateTime CheckOutDate { get; private set; }
+        public DateOnly CheckInDate { get; private set; }
+        public DateOnly CheckOutDate { get; private set; }
 
         public Guid CustomerId { get; private set; }
         public Customer Customer { get; private set; }
@@ -18,11 +18,11 @@ namespace HotelReservation.Domain.Entities
         //yine de pricing service e koy çünkü sezonluk fiyatlandırma, indirimler vs. olabilir
         public decimal TotalPrice { get; private set; }
 
-        public Reservation(DateTime checkInDate, DateTime checkOutDate, Guid customerId, Guid roomId, int numberOfGuests, decimal totalPrice)
+        public Reservation(DateOnly checkInDate, DateOnly checkOutDate, Guid customerId, Guid roomId, int numberOfGuests, decimal totalPrice)
         {
-            if (checkInDate >= checkOutDate)
-                throw new ArgumentException("Check-out date must be after check-in date.");
-            if(checkInDate <= DateTime.Now)
+            if (checkInDate > checkOutDate)
+                throw new ArgumentException("Check-out date must be on or after check-in date.");
+            if(checkInDate <= DateOnly.FromDateTime(DateTime.UtcNow))
                 throw new ArgumentException("Check-in date must be in the future.");
             if (numberOfGuests <= 0)
                 throw new ArgumentException("Number of guests must be greater than zero.");
@@ -37,18 +37,18 @@ namespace HotelReservation.Domain.Entities
             TotalPrice = totalPrice;
         }
 
-        public void Update(DateTime checkInDate, DateTime checkOutDate, int numberOfGuests, decimal roomPrice)
+        public void Update(DateOnly checkInDate, DateOnly checkOutDate, int numberOfGuests, decimal roomPrice)
         {
-            if (checkInDate >= checkOutDate)
-                throw new ArgumentException("Check-out date must be after check-in date.");
-            if (checkInDate <= DateTime.UtcNow)
+            if (checkInDate > checkOutDate)
+                throw new ArgumentException("Check-out date must be on or after check-in date.");
+            if (checkInDate <= DateOnly.FromDateTime(DateTime.UtcNow))
                 throw new ArgumentException("Check-in date must be in the future.");
             if (numberOfGuests <= 0)
                 throw new ArgumentException("Number of guests must be greater than zero.");
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
             NumberOfGuests = numberOfGuests;
-            TotalPrice = roomPrice * (checkOutDate - checkInDate).Days;
+            TotalPrice = roomPrice;
         }
     }
 }

@@ -9,37 +9,37 @@ namespace HotelReservation.API.Controllers
     public class CustomerController(ICustomerService service) : ControllerBase
     {
         [HttpPost]
-        public ActionResult AddCustomer(CustomerRequest customerRequest)
+        public async Task<ActionResult> AddCustomer(CustomerRequest customerRequest)
         {
-            service.AddCustomer(customerRequest);
-            return Ok();
+            await service.AddCustomerAsync(customerRequest);
+            return Created();
         }
 
         [HttpGet]
-        public ActionResult GetAllCustomers()
+        public async Task<ActionResult> GetAllCustomers()
         {
-            var customers = service.GetAllCustomers();
+            var customers = await service.GetAllCustomersAsync();
             return Ok(customers);
         }
 
         [HttpGet("{id}")]
-        public ActionResult GetCustomerById(Guid id)
+        public async Task<ActionResult> GetCustomerById(Guid id)
         {
-            var customer = service.GetCustomerById(id);
+            var customer = await service.GetCustomerByIdAsync(id);
             return Ok(customer);
         }
 
         [HttpPut("{id}")]
-        public ActionResult UpdateCustomer(Guid id, [FromBody] UpdateCustomerRequest updateCustomerRequest)
+        public async Task<ActionResult> UpdateCustomer(Guid id, [FromBody] UpdateCustomerRequest updateCustomerRequest)
         {
-            var updatedCustomer = service.UpdateCustomer(id, updateCustomerRequest);
+            var updatedCustomer = await service.UpdateCustomerAsync(id, updateCustomerRequest);
             return Ok(updatedCustomer);
         }
 
         [HttpDelete("{id}")]
-        public ActionResult DeleteCustomer(Guid id)
+        public async Task<ActionResult> DeleteCustomer(Guid id)
         {
-            var deletedCustomer = service.DeleteCustomer(id);
+            var deletedCustomer = await service.DeleteCustomerAsync(id);
             return Ok(deletedCustomer);
         }
     }

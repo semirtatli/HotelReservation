@@ -9,37 +9,37 @@ namespace HotelReservation.API.Controllers
     public class RoomController(IRoomService service) : ControllerBase
     {
         [HttpPost]
-        public ActionResult AddRoom([FromBody] CreateRoomRequest createRoomRequest)
+        public async Task<ActionResult> AddRoom([FromBody] CreateRoomRequest createRoomRequest)
         {
-            var response = service.AddRoom(createRoomRequest);
-            return Ok(response);
+            var response = await service.AddRoomAsync(createRoomRequest);
+            return CreatedAtAction(nameof(GetRoomById), new { id = response.Id }, response);
         }
 
         [HttpGet]
-        public ActionResult GetAllRooms()
+        public async Task<ActionResult> GetAllRooms()
         {
-            var rooms = service.GetAllRooms();
+            var rooms = await service.GetAllRoomsAsync();
             return Ok(rooms);
         }
 
         [HttpGet("{id}")]
-        public ActionResult GetRoomById(Guid id)
+        public async Task<ActionResult> GetRoomById(Guid id)
         {
-            var room = service.GetRoomById(id);
+            var room = await service.GetRoomByIdAsync(id);
             return Ok(room);
         }
 
         [HttpPut("{id}")]
-        public ActionResult UpdateRoom(Guid id, [FromBody] UpdateRoomRequest updateRoomRequest)
+        public async Task<ActionResult> UpdateRoom(Guid id, [FromBody] UpdateRoomRequest updateRoomRequest)
         {
-            var updatedRoom = service.UpdateRoom(id, updateRoomRequest);
+            var updatedRoom = await service.UpdateRoomAsync(id, updateRoomRequest);
             return Ok(updatedRoom);
         }
 
         [HttpDelete("{id}")]
-        public ActionResult DeleteRoom(Guid id)
+        public async Task<ActionResult> DeleteRoom(Guid id)
         {
-            var deletedRoom = service.DeleteRoom(id);
+            var deletedRoom = await service.DeleteRoomAsync(id);
             return Ok(deletedRoom);
         }
     }

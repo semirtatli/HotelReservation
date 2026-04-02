@@ -22,6 +22,10 @@ namespace HotelReservation.Infrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
             // Configure entity relationships and constraints here if needed
+
+            modelBuilder.Entity<Room>()
+        .Property(r => r.RoomType)
+        .HasConversion<string>();
         }
     }
 }

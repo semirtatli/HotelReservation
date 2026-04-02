@@ -8,7 +8,7 @@ namespace HotelReservation.Application.Validators
         public UpdateReservationRequestValidator()
         {
             RuleFor(x => x.NumberOfGuests).GreaterThan(0);
-            RuleFor(x => x.CheckOutDate).GreaterThan(x => x.CheckInDate);
+            RuleFor(x => x.CheckOutDate).GreaterThanOrEqualTo(x => x.CheckInDate);
         }
     }
 }

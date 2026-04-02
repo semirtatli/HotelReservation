@@ -4,11 +4,11 @@ namespace HotelReservation.Application.RepositoryInterfaces
 {
     public interface IReservationRepository
     {
-        public void AddReservation(Reservation reservation);
-        public bool IsRoomAvailable(Guid roomId, DateTime checkInDate, DateTime checkOutDate);
-        public List<Reservation> GetAllReservations();
-        public Reservation GetReservationById(Guid id);
-        public Reservation UpdateReservation(Guid id, DateTime checkInDate, DateTime checkOutDate, int numberOfGuests);
-        public Reservation DeleteReservation(Guid id);
+        Task AddReservationAsync(Reservation reservation);
+        Task<bool> IsRoomAvailableAsync(Guid roomId, DateOnly checkInDate, DateOnly checkOutDate);
+        Task<List<Reservation>> GetAllReservationsAsync();
+        Task<Reservation> GetReservationByIdAsync(Guid id);
+        Task<Reservation> UpdateReservationAsync(Guid id, DateOnly checkInDate, DateOnly checkOutDate, int numberOfGuests, decimal totalPrice);
+        Task<Reservation> DeleteReservationAsync(Guid id);
     }
 }

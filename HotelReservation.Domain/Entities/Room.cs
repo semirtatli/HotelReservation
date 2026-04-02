@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HotelReservation.Domain.Enums;
+using System;
 
 namespace HotelReservation.Domain.Entities
 {
@@ -6,20 +7,32 @@ namespace HotelReservation.Domain.Entities
     {
         public Guid Id { get; private set; }
         public int Capacity { get; private set; }
-        public decimal Price { get; private set; }
+        public decimal BasePrice { get; private set; }
         public Guid HotelId { get; private set; }
         public Hotel? Hotel { get; private set; }
+        public RoomType RoomType { get; private set; }
 
-        public Room(int capacity, decimal price, Guid hotelId)
+        private static readonly Dictionary<RoomType, decimal> PriceMultipliers = new()
+    {
+        { RoomType.Standard, 1.0m },
+        { RoomType.Deluxe,   1.5m },
+        { RoomType.Suite,    2.5m }
+    };
+
+
+
+        public Room(int capacity, decimal basePrice, Guid hotelId, RoomType roomType)
         {
-            if(capacity <= 0) throw new ArgumentOutOfRangeException(nameof(capacity));
-            if(price < 0) throw new ArgumentOutOfRangeException(nameof(price));
+            if (capacity <= 0) throw new ArgumentOutOfRangeException(nameof(capacity));
+            if (basePrice < 0) throw new ArgumentOutOfRangeException(nameof(basePrice));
             Id = Guid.NewGuid();
             Capacity = capacity;
-            Price = price;
+            BasePrice = basePrice;
             HotelId = hotelId;
+            RoomType = roomType;
         }
 
+        private Room() { }
         public void UpdateCapacity(int capacity)
         {
             if (capacity <= 0) throw new ArgumentOutOfRangeException(nameof(capacity));
@@ -29,7 +42,18 @@ namespace HotelReservation.Domain.Entities
         public void UpdatePrice(decimal price)
         {
             if (price < 0) throw new ArgumentOutOfRangeException(nameof(price));
-            Price = price;
+            BasePrice = price;
+        }
+
+        public decimal GetPricePerNight()
+        {
+            return BasePrice * PriceMultipliers[RoomType];
+
+        }
+
+        public void UpdateRoomType(RoomType roomType)
+        {
+            RoomType = roomType;
         }
     }
 }

@@ -9,37 +9,37 @@ namespace HotelReservation.API.Controllers
     public class ReservationController(IReservationService service) : ControllerBase
     {
         [HttpPost]
-        public ActionResult AddReservation([FromBody] CreateReservationRequest createReservationRequest)
+        public async Task<ActionResult> AddReservation([FromBody] CreateReservationRequest createReservationRequest)
         {
-            var response = service.AddReservation(createReservationRequest);
-            return Ok(response);
+            var response = await service.AddReservationAsync(createReservationRequest);
+            return CreatedAtAction(nameof(GetReservationById), new { id = response.Id }, response);
         }
 
         [HttpGet]
-        public ActionResult GetAllReservations()
+        public async Task<ActionResult> GetAllReservations()
         {
-            var reservations = service.GetAllReservations();
+            var reservations = await service.GetAllReservationsAsync();
             return Ok(reservations);
         }
 
         [HttpGet("{id}")]
-        public ActionResult GetReservationById(Guid id)
+        public async Task<ActionResult> GetReservationById(Guid id)
         {
-            var reservation = service.GetReservationById(id);
+            var reservation = await service.GetReservationByIdAsync(id);
             return Ok(reservation);
         }
 
         [HttpPut("{id}")]
-        public ActionResult UpdateReservation(Guid id, [FromBody] UpdateReservationRequest updateReservationRequest)
+        public async Task<ActionResult> UpdateReservation(Guid id, [FromBody] UpdateReservationRequest updateReservationRequest)
         {
-            var response = service.UpdateReservation(id, updateReservationRequest);
+            var response = await service.UpdateReservationAsync(id, updateReservationRequest);
             return Ok(response);
         }
 
         [HttpDelete("{id}")]
-        public ActionResult DeleteReservation(Guid id)
+        public async Task<ActionResult> DeleteReservation(Guid id)
         {
-            var deletedReservation = service.DeleteReservation(id);
+            var deletedReservation = await service.DeleteReservationAsync(id);
             return Ok(deletedReservation);
         }
     }

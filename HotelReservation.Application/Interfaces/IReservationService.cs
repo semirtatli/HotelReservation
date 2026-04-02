@@ -4,10 +4,10 @@ namespace HotelReservation.Application.Interfaces
 {
     public interface IReservationService
     {
-        public ReservationResponse AddReservation(CreateReservationRequest request);
-        public List<ReservationResponse> GetAllReservations();
-        public ReservationResponse GetReservationById(Guid id);
-        public ReservationResponse UpdateReservation(Guid id, UpdateReservationRequest request);
-        public ReservationResponse DeleteReservation(Guid id);
+        Task<ReservationResponse> AddReservationAsync(CreateReservationRequest request);
+        Task<List<ReservationResponse>> GetAllReservationsAsync();
+        Task<ReservationResponse> GetReservationByIdAsync(Guid id);
+        Task<ReservationResponse> UpdateReservationAsync(Guid id, UpdateReservationRequest request);
+        Task<ReservationResponse> DeleteReservationAsync(Guid id);
     }
 }

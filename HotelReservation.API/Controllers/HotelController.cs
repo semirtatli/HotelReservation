@@ -1,4 +1,4 @@
-﻿using HotelReservation.Application.DTO;
+using HotelReservation.Application.DTO;
 using HotelReservation.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,37 +9,37 @@ namespace HotelReservation.API.Controllers
     public class HotelController(IHotelService service) : ControllerBase
     {
         [HttpPost]
-        public ActionResult AddHotel([FromBody] CreateHotelRequest createHotelRequest)
+        public async Task<ActionResult> AddHotel([FromBody] CreateHotelRequest createHotelRequest)
         {
-            var response = service.AddHotel(createHotelRequest);
-            return Ok(response);
+            var response = await service.AddHotelAsync(createHotelRequest);
+            return CreatedAtAction(nameof(GetHotelById), new { id = response.Id }, response);
         }
 
         [HttpPut("{id}")]
-        public ActionResult UpdateHotel(Guid id, [FromBody] UpdateHotelRequest updateHotelRequest)
+        public async Task<ActionResult> UpdateHotel(Guid id, [FromBody] UpdateHotelRequest updateHotelRequest)
         {
-            var updatedHotel = service.UpdateHotel(id, updateHotelRequest);
+            var updatedHotel = await service.UpdateHotelAsync(id, updateHotelRequest);
             return Ok(updatedHotel);
         }
 
         [HttpGet]
-        public ActionResult GetAllHotels()
+        public async Task<ActionResult> GetAllHotels()
         {
-            var hotels = service.GetAllHotels();
+            var hotels = await service.GetAllHotelsAsync();
             return Ok(hotels);
         }
 
         [HttpGet("{id}")]
-        public ActionResult GetHotelById(Guid id)
+        public async Task<ActionResult> GetHotelById(Guid id)
         {
-            var hotel = service.GetHotelById(id);
+            var hotel = await service.GetHotelByIdAsync(id);
             return Ok(hotel);
         }
 
         [HttpDelete("{id}")]
-        public ActionResult DeleteHotel(Guid id)
+        public async Task<ActionResult> DeleteHotel(Guid id)
         {
-            var deletedHotel = service.DeleteHotel(id);
+            var deletedHotel = await service.DeleteHotelAsync(id);
             return Ok(deletedHotel);
         }
     }

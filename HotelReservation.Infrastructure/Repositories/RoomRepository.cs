@@ -1,59 +1,56 @@
 using HotelReservation.Application.RepositoryInterfaces;
 using HotelReservation.Domain.Entities;
+using HotelReservation.Domain.Enums;
 using HotelReservation.Domain.Exceptions;
 using HotelReservation.Infrastructure.Data;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.EntityFrameworkCore;
 
 namespace HotelReservation.Infrastructure.Repositories
 {
     public class RoomRepository : IRoomRepository
     {
         private readonly AppDbContext _context;
-        public RoomRepository(AppDbContext _context)
+        public RoomRepository(AppDbContext context)
         {
-            this._context = _context;
+            _context = context;
         }
 
-        public void AddRoom(Room room)
+        public async Task AddRoomAsync(Room room)
         {
             _context.Rooms.Add(room);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public List<Room> GetAllRooms()
+        public async Task<List<Room>> GetAllRoomsAsync()
         {
-            return _context.Rooms.ToList();
+            return await _context.Rooms.ToListAsync();
         }
 
-        public Room GetRoomById(Guid id)
+        public async Task<Room> GetRoomByIdAsync(Guid id)
         {
-            var room = _context.Rooms.Find(id);
+            var room = await _context.Rooms.FindAsync(id);
             if (room is null) throw new NotFoundException("Room not found");
             return room;
         }
 
-        public Room UpdateRoom(Guid id, Room room)
+        public async Task<Room> UpdateRoomAsync(Guid id, int capacity, decimal price, RoomType roomType)
         {
-            var existingRoom = _context.Rooms.Find(id);
+            var existingRoom = await _context.Rooms.FindAsync(id);
             if (existingRoom is null) throw new NotFoundException("Room not found");
-            existingRoom.UpdateCapacity(room.Capacity);
-            existingRoom.UpdatePrice(room.Price);
-            _context.SaveChanges();
+            existingRoom.UpdateCapacity(capacity);
+            existingRoom.UpdatePrice(price);
+            existingRoom.UpdateRoomType(roomType);
+            await _context.SaveChangesAsync();
             return existingRoom;
         }
 
-        public Room DeleteRoom(Guid id)
+        public async Task<Room> DeleteRoomAsync(Guid id)
         {
-            var room = _context.Rooms.Find(id);
-            if (room != null)
-            {
-                _context.Rooms.Remove(room);
-                _context.SaveChanges();
-                return room;
-            }
-            throw new NotFoundException("Room not found");
+            var room = await _context.Rooms.FindAsync(id);
+            if (room is null) throw new NotFoundException("Room not found");
+            _context.Rooms.Remove(room);
+            await _context.SaveChangesAsync();
+            return room;
         }
     }
 }

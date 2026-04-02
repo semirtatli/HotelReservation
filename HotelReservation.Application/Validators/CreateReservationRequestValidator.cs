@@ -10,7 +10,7 @@ namespace HotelReservation.Application.Validators
             RuleFor(x => x.RoomId).NotEmpty();
             RuleFor(x => x.CustomerId).NotEmpty();
             RuleFor(x => x.NumberOfGuests).GreaterThan(0);
-            RuleFor(x => x.CheckOutDate).GreaterThan(x => x.CheckInDate);
+            RuleFor(x => x.CheckOutDate).GreaterThanOrEqualTo(x => x.CheckInDate);
         }
     }
 }

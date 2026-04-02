@@ -30,6 +30,7 @@ namespace HotelReservation.API.Middleware
             var statusCode = exception switch
             {
                 NotFoundException => StatusCodes.Status404NotFound,
+                RoomNotAvailableException => StatusCodes.Status409Conflict,
                 ValidationException => StatusCodes.Status400BadRequest,
                 ArgumentException => StatusCodes.Status400BadRequest,
                 _ => StatusCodes.Status500InternalServerError

@@ -1,61 +1,53 @@
-﻿using HotelReservation.Application.DTO;
-using HotelReservation.Application.Interfaces;
 using HotelReservation.Application.RepositoryInterfaces;
 using HotelReservation.Domain.Entities;
 using HotelReservation.Domain.Exceptions;
 using HotelReservation.Infrastructure.Data;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.EntityFrameworkCore;
 
 namespace HotelReservation.Infrastructure.Repositories
 {
     public class HotelRepository : IHotelRepository
     {
         private readonly AppDbContext _context;
-        public HotelRepository(AppDbContext _context)
+        public HotelRepository(AppDbContext context)
         {
-            this._context = _context;
+            _context = context;
         }
-        public void AddHotel(Hotel hotel)
+
+        public async Task AddHotelAsync(Hotel hotel)
         {
             _context.Hotels.Add(hotel);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public Hotel UpdateHotel(Guid id, Hotel hotel)
+        public async Task<List<Hotel>> GetAllHotelsAsync()
         {
-            var existingHotel = _context.Hotels.Find(id);
-            if (existingHotel is null) throw new NotFoundException("Hotel not found");
-            existingHotel.UpdateName(hotel.Name);
-            _context.SaveChanges();
-            return existingHotel;
+            return await _context.Hotels.ToListAsync();
         }
 
-        public List<Hotel> GetAllHotels() {
-            return _context.Hotels.ToList();
-        }
-
-        public Hotel GetHotelById(Guid id)
+        public async Task<Hotel> GetHotelByIdAsync(Guid id)
         {
-            var hotel = _context.Hotels.Find(id);
-            if (hotel is null) { 
-                throw new NotFoundException("Hotel not found");
-            }
+            var hotel = await _context.Hotels.FindAsync(id);
+            if (hotel is null) throw new NotFoundException("Hotel not found");
             return hotel;
         }
 
-        public Hotel DeleteHotel(Guid id)
+        public async Task<Hotel> UpdateHotelAsync(Guid id, Hotel hotel)
         {
-            var hotel = _context.Hotels.Find(id);
-            if (hotel != null)
-            {
-                
-                _context.Hotels.Remove(hotel);
-                _context.SaveChanges();
-                return hotel;
-            }
-            throw new NotFoundException("Hotel not found");
+            var existingHotel = await _context.Hotels.FindAsync(id);
+            if (existingHotel is null) throw new NotFoundException("Hotel not found");
+            existingHotel.UpdateName(hotel.Name);
+            await _context.SaveChangesAsync();
+            return existingHotel;
+        }
+
+        public async Task<Hotel> DeleteHotelAsync(Guid id)
+        {
+            var hotel = await _context.Hotels.FindAsync(id);
+            if (hotel is null) throw new NotFoundException("Hotel not found");
+            _context.Hotels.Remove(hotel);
+            await _context.SaveChangesAsync();
+            return hotel;
         }
     }
 }

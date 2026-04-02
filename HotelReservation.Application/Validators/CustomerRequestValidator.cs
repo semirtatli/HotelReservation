@@ -8,7 +8,7 @@ namespace HotelReservation.Application.Validators
         public CustomerRequestValidator()
         {
             RuleFor(x => x.Name).NotEmpty();
-            RuleFor(x => x.DateOfBirth).NotEmpty();
+            RuleFor(x => x.DateOfBirth).NotEqual(default(DateOnly));
         }
     }
 }

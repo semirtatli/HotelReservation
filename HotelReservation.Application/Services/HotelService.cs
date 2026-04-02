@@ -1,13 +1,8 @@
-﻿using FluentValidation;
+using FluentValidation;
 using HotelReservation.Application.DTO;
 using HotelReservation.Application.Interfaces;
 using HotelReservation.Application.RepositoryInterfaces;
 using HotelReservation.Domain.Entities;
-using HotelReservation.Domain.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace HotelReservation.Application.Services
 {
@@ -17,64 +12,51 @@ namespace HotelReservation.Application.Services
         private readonly IValidator<CreateHotelRequest> _createHotelRequestValidator;
         private readonly IValidator<UpdateHotelRequest> _updateHotelRequestValidator;
 
-        public HotelService(IHotelRepository _hotelRepository, IValidator<CreateHotelRequest> createHotelRequestValidator, IValidator<UpdateHotelRequest> updateHotelRequestValidator)
+        public HotelService(IHotelRepository hotelRepository, IValidator<CreateHotelRequest> createHotelRequestValidator, IValidator<UpdateHotelRequest> updateHotelRequestValidator)
         {
-            this._hotelRepository = _hotelRepository;
+            _hotelRepository = hotelRepository;
             _createHotelRequestValidator = createHotelRequestValidator;
             _updateHotelRequestValidator = updateHotelRequestValidator;
         }
 
-        public HotelResponse AddHotel(CreateHotelRequest CreateHotelRequest)
+        public async Task<HotelResponse> AddHotelAsync(CreateHotelRequest request)
         {
-            _createHotelRequestValidator.ValidateAndThrow(CreateHotelRequest);
-
-            var HotelEntity = new Hotel
-            (
-                CreateHotelRequest.Name
-            );
-            _hotelRepository.AddHotel(HotelEntity);
-            return new HotelResponse { Name = HotelEntity.Name };
+            _createHotelRequestValidator.ValidateAndThrow(request);
+            var hotel = new Hotel(request.Name);
+            await _hotelRepository.AddHotelAsync(hotel);
+            return MapToResponse(hotel);
         }
 
-        public HotelResponse UpdateHotel(Guid id, UpdateHotelRequest UpdateHotelRequest)
+        public async Task<HotelResponse> UpdateHotelAsync(Guid id, UpdateHotelRequest request)
         {
-            _updateHotelRequestValidator.ValidateAndThrow(UpdateHotelRequest);
-
-            var HotelEntity = new Hotel(UpdateHotelRequest.Name);
-            var updatedHotel = _hotelRepository.UpdateHotel(id, HotelEntity);
-            return new HotelResponse { Id = updatedHotel.Id, Name = updatedHotel.Name };
+            _updateHotelRequestValidator.ValidateAndThrow(request);
+            var hotelEntity = new Hotel(request.Name);
+            var updatedHotel = await _hotelRepository.UpdateHotelAsync(id, hotelEntity);
+            return MapToResponse(updatedHotel);
         }
 
-        public List<HotelResponse> GetAllHotels()
+        public async Task<List<HotelResponse>> GetAllHotelsAsync()
         {
-            var hotels = _hotelRepository.GetAllHotels();
-            return hotels.Select(h => new HotelResponse
-            {
-                Id = h.Id,
-                Name = h.Name
-            }).ToList();
+            var hotels = await _hotelRepository.GetAllHotelsAsync();
+            return hotels.Select(MapToResponse).ToList();
         }
 
-        public HotelResponse GetHotelById(Guid id)
+        public async Task<HotelResponse> GetHotelByIdAsync(Guid id)
         {
-            var hotel = _hotelRepository.GetHotelById(id);
-            return new HotelResponse
-            {
-                Id = hotel.Id,
-                Name = hotel.Name
-            };
+            var hotel = await _hotelRepository.GetHotelByIdAsync(id);
+            return MapToResponse(hotel);
         }
 
-        public HotelResponse DeleteHotel(Guid id)
+        public async Task<HotelResponse> DeleteHotelAsync(Guid id)
         {
-            var deletedHotel = _hotelRepository.DeleteHotel(id);
-            var deletedHotelResponse = new HotelResponse
-            {
-                Id = deletedHotel.Id,
-                Name = deletedHotel.Name
-            };
-            return deletedHotelResponse;
-
+            var deletedHotel = await _hotelRepository.DeleteHotelAsync(id);
+            return MapToResponse(deletedHotel);
         }
+
+        private static HotelResponse MapToResponse(Hotel hotel) => new()
+        {
+            Id = hotel.Id,
+            Name = hotel.Name
+        };
     }
 }

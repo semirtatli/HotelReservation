@@ -2,11 +2,9 @@ using FluentValidation;
 using HotelReservation.Application.DTO;
 using HotelReservation.Application.Interfaces;
 using HotelReservation.Application.RepositoryInterfaces;
+using HotelReservation.Application.Strategies;
 using HotelReservation.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using HotelReservation.Domain.Exceptions;
 
 namespace HotelReservation.Application.Services
 {
@@ -16,105 +14,81 @@ namespace HotelReservation.Application.Services
         private readonly IRoomRepository _roomRepository;
         private readonly IValidator<CreateReservationRequest> _createReservationRequestValidator;
         private readonly IValidator<UpdateReservationRequest> _updateReservationRequestValidator;
+        private readonly IPricingStrategy _pricingStrategy;
 
-        public ReservationService(IReservationRepository _reservationRepository, IRoomRepository roomRepository, IValidator<CreateReservationRequest> createReservationRequestValidator, IValidator<UpdateReservationRequest> updateReservationRequestValidator)
+        public ReservationService(IReservationRepository reservationRepository, IRoomRepository roomRepository, IValidator<CreateReservationRequest> createReservationRequestValidator, IValidator<UpdateReservationRequest> updateReservationRequestValidator, IPricingStrategy pricingStrategy)
         {
-            this._reservationRepository = _reservationRepository;
+            _reservationRepository = reservationRepository;
             _roomRepository = roomRepository;
             _createReservationRequestValidator = createReservationRequestValidator;
             _updateReservationRequestValidator = updateReservationRequestValidator;
+            _pricingStrategy = pricingStrategy;
         }
 
-        public ReservationResponse AddReservation(CreateReservationRequest createReservationRequest)
+        public async Task<ReservationResponse> AddReservationAsync(CreateReservationRequest request)
         {
-            _createReservationRequestValidator.ValidateAndThrow(createReservationRequest);
+            _createReservationRequestValidator.ValidateAndThrow(request);
 
-            var checkIn = DateTime.SpecifyKind(createReservationRequest.CheckInDate, DateTimeKind.Utc);
-            var checkOut = DateTime.SpecifyKind(createReservationRequest.CheckOutDate, DateTimeKind.Utc);
+            if (!await _reservationRepository.IsRoomAvailableAsync(request.RoomId, request.CheckInDate, request.CheckOutDate))
+                throw new RoomNotAvailableException("Room is not available for the selected dates.");
 
-            if (!_reservationRepository.IsRoomAvailable(createReservationRequest.RoomId, checkIn, checkOut))
-                throw new Exception("Room is not available for the selected dates.");
+            var room = await _roomRepository.GetRoomByIdAsync(request.RoomId);
 
-            var room = _roomRepository.GetRoomById(createReservationRequest.RoomId);
-            var totalPrice = room.Price * (checkOut - checkIn).Days;
+            if (request.NumberOfGuests > room.Capacity)
+                throw new ArgumentException($"Number of guests ({request.NumberOfGuests}) exceeds room capacity ({room.Capacity}).");
 
-            var reservationEntity = new Reservation(checkIn, checkOut, createReservationRequest.CustomerId, createReservationRequest.RoomId, createReservationRequest.NumberOfGuests, totalPrice);
-            _reservationRepository.AddReservation(reservationEntity);
-            return new ReservationResponse
-            {
-                Id = reservationEntity.Id,
-                CheckInDate = reservationEntity.CheckInDate,
-                CheckOutDate = reservationEntity.CheckOutDate,
-                CustomerId = reservationEntity.CustomerId,
-                RoomId = reservationEntity.RoomId,
-                NumberOfGuests = reservationEntity.NumberOfGuests,
-                TotalPrice = reservationEntity.TotalPrice
-            };
+            var totalPrice = _pricingStrategy.Calculate(room, request.CheckInDate, request.CheckOutDate);
+            var reservation = new Reservation(request.CheckInDate, request.CheckOutDate, request.CustomerId, request.RoomId, request.NumberOfGuests, totalPrice);
+            await _reservationRepository.AddReservationAsync(reservation);
+            return MapToResponse(reservation);
         }
 
-        public List<ReservationResponse> GetAllReservations()
+        public async Task<List<ReservationResponse>> GetAllReservationsAsync()
         {
-            var reservations = _reservationRepository.GetAllReservations();
-            return reservations.Select(r => new ReservationResponse
-            {
-                Id = r.Id,
-                CheckInDate = r.CheckInDate,
-                CheckOutDate = r.CheckOutDate,
-                CustomerId = r.CustomerId,
-                RoomId = r.RoomId,
-                NumberOfGuests = r.NumberOfGuests,
-                TotalPrice = r.TotalPrice
-            }).ToList();
+            var reservations = await _reservationRepository.GetAllReservationsAsync();
+            return reservations.Select(MapToResponse).ToList();
         }
 
-        public ReservationResponse GetReservationById(Guid id)
+        public async Task<ReservationResponse> GetReservationByIdAsync(Guid id)
         {
-            var reservation = _reservationRepository.GetReservationById(id);
-            return new ReservationResponse
-            {
-                Id = reservation.Id,
-                CheckInDate = reservation.CheckInDate,
-                CheckOutDate = reservation.CheckOutDate,
-                CustomerId = reservation.CustomerId,
-                RoomId = reservation.RoomId,
-                NumberOfGuests = reservation.NumberOfGuests,
-                TotalPrice = reservation.TotalPrice
-            };
+            var reservation = await _reservationRepository.GetReservationByIdAsync(id);
+            return MapToResponse(reservation);
         }
 
-        public ReservationResponse UpdateReservation(Guid id, UpdateReservationRequest updateReservationRequest)
+        public async Task<ReservationResponse> UpdateReservationAsync(Guid id, UpdateReservationRequest request)
         {
-            _updateReservationRequestValidator.ValidateAndThrow(updateReservationRequest);
+            _updateReservationRequestValidator.ValidateAndThrow(request);
 
-            var checkIn = DateTime.SpecifyKind(updateReservationRequest.CheckInDate, DateTimeKind.Utc);
-            var checkOut = DateTime.SpecifyKind(updateReservationRequest.CheckOutDate, DateTimeKind.Utc);
+            var existing = await _reservationRepository.GetReservationByIdAsync(id);
 
-            var reservation = _reservationRepository.UpdateReservation(id, checkIn, checkOut, updateReservationRequest.NumberOfGuests);
-            return new ReservationResponse
-            {
-                Id = reservation.Id,
-                CheckInDate = reservation.CheckInDate,
-                CheckOutDate = reservation.CheckOutDate,
-                CustomerId = reservation.CustomerId,
-                RoomId = reservation.RoomId,
-                NumberOfGuests = reservation.NumberOfGuests,
-                TotalPrice = reservation.TotalPrice
-            };
+            if (!await _reservationRepository.IsRoomAvailableAsync(existing.RoomId, request.CheckInDate, request.CheckOutDate))
+                throw new RoomNotAvailableException("Room is not available for the selected dates.");
+
+            var room = await _roomRepository.GetRoomByIdAsync(existing.RoomId);
+
+            if (request.NumberOfGuests > room.Capacity)
+                throw new ArgumentException($"Number of guests ({request.NumberOfGuests}) exceeds room capacity ({room.Capacity}).");
+
+            var totalPrice = _pricingStrategy.Calculate(room, request.CheckInDate, request.CheckOutDate);
+            var reservation = await _reservationRepository.UpdateReservationAsync(id, request.CheckInDate, request.CheckOutDate, request.NumberOfGuests, totalPrice);
+            return MapToResponse(reservation);
         }
 
-        public ReservationResponse DeleteReservation(Guid id)
+        public async Task<ReservationResponse> DeleteReservationAsync(Guid id)
         {
-            var deletedReservation = _reservationRepository.DeleteReservation(id);
-            return new ReservationResponse
-            {
-                Id = deletedReservation.Id,
-                CheckInDate = deletedReservation.CheckInDate,
-                CheckOutDate = deletedReservation.CheckOutDate,
-                CustomerId = deletedReservation.CustomerId,
-                RoomId = deletedReservation.RoomId,
-                NumberOfGuests = deletedReservation.NumberOfGuests,
-                TotalPrice = deletedReservation.TotalPrice
-            };
+            var deletedReservation = await _reservationRepository.DeleteReservationAsync(id);
+            return MapToResponse(deletedReservation);
         }
+
+        private static ReservationResponse MapToResponse(Reservation reservation) => new()
+        {
+            Id = reservation.Id,
+            CheckInDate = reservation.CheckInDate,
+            CheckOutDate = reservation.CheckOutDate,
+            CustomerId = reservation.CustomerId,
+            RoomId = reservation.RoomId,
+            NumberOfGuests = reservation.NumberOfGuests,
+            TotalPrice = reservation.TotalPrice
+        };
     }
 }

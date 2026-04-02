@@ -2,58 +2,53 @@ using HotelReservation.Application.RepositoryInterfaces;
 using HotelReservation.Domain.Entities;
 using HotelReservation.Domain.Exceptions;
 using HotelReservation.Infrastructure.Data;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.EntityFrameworkCore;
 
 namespace HotelReservation.Infrastructure.Repositories
 {
     public class CustomerRepository : ICustomerRepository
     {
         private readonly AppDbContext _context;
-        public CustomerRepository(AppDbContext _context)
+        public CustomerRepository(AppDbContext context)
         {
-            this._context = _context;
+            _context = context;
         }
 
-        public void AddCustomer(Customer customer)
+        public async Task AddCustomerAsync(Customer customer)
         {
             _context.Customers.Add(customer);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public List<Customer> GetAllCustomers()
+        public async Task<List<Customer>> GetAllCustomersAsync()
         {
-            return _context.Customers.ToList();
+            return await _context.Customers.ToListAsync();
         }
 
-        public Customer GetCustomerById(Guid id)
+        public async Task<Customer> GetCustomerByIdAsync(Guid id)
         {
-            var customer = _context.Customers.Find(id);
+            var customer = await _context.Customers.FindAsync(id);
             if (customer is null) throw new NotFoundException("Customer not found");
             return customer;
         }
 
-        public Customer UpdateCustomer(Guid id, Customer customer)
+        public async Task<Customer> UpdateCustomerAsync(Guid id, Customer customer)
         {
-            var existingCustomer = _context.Customers.Find(id);
+            var existingCustomer = await _context.Customers.FindAsync(id);
             if (existingCustomer is null) throw new NotFoundException("Customer not found");
             existingCustomer.UpdateName(customer.Name);
             existingCustomer.UpdateDateOfBirth(customer.DateOfBirth);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return existingCustomer;
         }
 
-        public Customer DeleteCustomer(Guid id)
+        public async Task<Customer> DeleteCustomerAsync(Guid id)
         {
-            var customer = _context.Customers.Find(id);
-            if (customer != null)
-            {
-                _context.Customers.Remove(customer);
-                _context.SaveChanges();
-                return customer;
-            }
-            throw new NotFoundException("Customer not found");
+            var customer = await _context.Customers.FindAsync(id);
+            if (customer is null) throw new NotFoundException("Customer not found");
+            _context.Customers.Remove(customer);
+            await _context.SaveChangesAsync();
+            return customer;
         }
     }
 }

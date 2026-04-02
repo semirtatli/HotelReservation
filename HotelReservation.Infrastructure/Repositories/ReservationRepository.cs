@@ -2,78 +2,71 @@ using HotelReservation.Application.RepositoryInterfaces;
 using HotelReservation.Domain.Entities;
 using HotelReservation.Domain.Exceptions;
 using HotelReservation.Infrastructure.Data;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.EntityFrameworkCore;
 
 namespace HotelReservation.Infrastructure.Repositories
 {
     public class ReservationRepository : IReservationRepository
     {
         private readonly AppDbContext _context;
-        public ReservationRepository(AppDbContext _context)
+        public ReservationRepository(AppDbContext context)
         {
-            this._context = _context;
+            _context = context;
         }
 
-        public void AddReservation(Reservation reservation)
+        public async Task AddReservationAsync(Reservation reservation)
         {
             _context.Reservations.Add(reservation);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public bool IsRoomAvailable(Guid roomId, DateTime checkInDate, DateTime checkOutDate)
+        public async Task<bool> IsRoomAvailableAsync(Guid roomId, DateOnly checkInDate, DateOnly checkOutDate)
         {
-            var hasConflict = _context.Reservations
-                .Any(r =>
-                    r.RoomId == roomId &&
-                    r.CheckInDate < checkOutDate &&
-                    r.CheckOutDate > checkInDate
-                );
+            var hasConflict = await _context.Reservations.AnyAsync(r =>
+                r.RoomId == roomId &&
+                r.CheckInDate < checkOutDate &&
+                r.CheckOutDate > checkInDate
+            );
             return !hasConflict;
         }
 
-        public List<Reservation> GetAllReservations()
+        public async Task<List<Reservation>> GetAllReservationsAsync()
         {
-            return _context.Reservations.ToList();
+            return await _context.Reservations.ToListAsync();
         }
 
-        public Reservation GetReservationById(Guid id)
+        public async Task<Reservation> GetReservationByIdAsync(Guid id)
         {
-            var reservation = _context.Reservations.Find(id);
+            var reservation = await _context.Reservations.FindAsync(id);
             if (reservation is null) throw new NotFoundException("Reservation not found");
             return reservation;
         }
 
-        public Reservation UpdateReservation(Guid id, DateTime checkInDate, DateTime checkOutDate, int numberOfGuests)
+        public async Task<Reservation> UpdateReservationAsync(Guid id, DateOnly checkInDate, DateOnly checkOutDate, int numberOfGuests, decimal totalPrice)
         {
-            var reservation = _context.Reservations.Find(id);
+            var reservation = await _context.Reservations.FindAsync(id);
             if (reservation is null) throw new NotFoundException("Reservation not found");
 
-            var hasConflict = _context.Reservations.Any(r =>
+            var hasConflict = await _context.Reservations.AnyAsync(r =>
                 r.Id != id &&
                 r.RoomId == reservation.RoomId &&
                 r.CheckInDate < checkOutDate &&
                 r.CheckOutDate > checkInDate
             );
-            if (hasConflict) throw new Exception("Room is not available for the selected dates.");
+            if (hasConflict) throw new RoomNotAvailableException("Room is not available for the selected dates.");
 
-            var room = _context.Rooms.Find(reservation.RoomId)!;
-            reservation.Update(checkInDate, checkOutDate, numberOfGuests, room.Price);
-            _context.SaveChanges();
+            reservation.Update(checkInDate, checkOutDate, numberOfGuests, totalPrice);
+            await _context.SaveChangesAsync();
             return reservation;
         }
 
-        public Reservation DeleteReservation(Guid id)
+        public async Task<Reservation> DeleteReservationAsync(Guid id)
         {
-            var reservation = _context.Reservations.Find(id);
-            if (reservation != null)
-            {
-                _context.Reservations.Remove(reservation);
-                _context.SaveChanges();
-                return reservation;
-            }
-            throw new NotFoundException("Reservation not found");
+            var reservation = await _context.Reservations.FindAsync(id);
+            if (reservation is null) throw new NotFoundException("Reservation not found");
+            _context.Reservations.Remove(reservation);
+            await _context.SaveChangesAsync();
+            return reservation;
         }
     }
 }

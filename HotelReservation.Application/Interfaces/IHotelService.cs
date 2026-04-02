@@ -1,21 +1,13 @@
-﻿using HotelReservation.Application.DTO;
-using HotelReservation.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using HotelReservation.Application.DTO;
 
 namespace HotelReservation.Application.Interfaces
 {
     public interface IHotelService
     {
-        public HotelResponse AddHotel(CreateHotelRequest CreateHotelRequest);
-
-        public HotelResponse UpdateHotel(Guid Id, UpdateHotelRequest UpdateHotelRequest);
-
-        public List<HotelResponse> GetAllHotels();
-
-        public HotelResponse GetHotelById(Guid id);
-
-        public HotelResponse DeleteHotel(Guid id);
+        Task<HotelResponse> AddHotelAsync(CreateHotelRequest request);
+        Task<HotelResponse> UpdateHotelAsync(Guid id, UpdateHotelRequest request);
+        Task<List<HotelResponse>> GetAllHotelsAsync();
+        Task<HotelResponse> GetHotelByIdAsync(Guid id);
+        Task<HotelResponse> DeleteHotelAsync(Guid id);
     }
 }
