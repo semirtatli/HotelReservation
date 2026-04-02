@@ -8,7 +8,7 @@ namespace HotelReservation.Application.RepositoryInterfaces
         Task<bool> IsRoomAvailableAsync(Guid roomId, DateOnly checkInDate, DateOnly checkOutDate);
         Task<List<Reservation>> GetAllReservationsAsync();
         Task<Reservation> GetReservationByIdAsync(Guid id);
-        Task<Reservation> UpdateReservationAsync(Guid id, DateOnly checkInDate, DateOnly checkOutDate, int numberOfGuests, decimal totalPrice);
+        Task<Reservation> UpdateReservationAsync(Guid id, Reservation reservation);
         Task<Reservation> DeleteReservationAsync(Guid id);
     }
 }

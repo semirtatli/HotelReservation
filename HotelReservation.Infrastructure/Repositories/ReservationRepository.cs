@@ -42,7 +42,7 @@ namespace HotelReservation.Infrastructure.Repositories
             return reservation;
         }
 
-        public async Task<Reservation> UpdateReservationAsync(Guid id, DateOnly checkInDate, DateOnly checkOutDate, int numberOfGuests, decimal totalPrice)
+        public async Task<Reservation> UpdateReservationAsync(Guid id, Reservation updatedReservation)
         {
             var reservation = await _context.Reservations.FindAsync(id);
             if (reservation is null) throw new NotFoundException("Reservation not found");
@@ -50,12 +50,12 @@ namespace HotelReservation.Infrastructure.Repositories
             var hasConflict = await _context.Reservations.AnyAsync(r =>
                 r.Id != id &&
                 r.RoomId == reservation.RoomId &&
-                r.CheckInDate < checkOutDate &&
-                r.CheckOutDate > checkInDate
+                r.CheckInDate < updatedReservation.CheckOutDate &&
+                r.CheckOutDate > updatedReservation.CheckInDate
             );
             if (hasConflict) throw new RoomNotAvailableException("Room is not available for the selected dates.");
 
-            reservation.Update(checkInDate, checkOutDate, numberOfGuests, totalPrice);
+            reservation.Update(updatedReservation.CheckInDate, updatedReservation.CheckOutDate, updatedReservation.NumberOfGuests, updatedReservation.TotalPrice);
             await _context.SaveChangesAsync();
             return reservation;
         }

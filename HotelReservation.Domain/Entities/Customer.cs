@@ -11,7 +11,7 @@ namespace HotelReservation.Domain.Entities
         public Customer( string name, DateOnly dateOfBirth)
         {
             if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Name cannot be empty or whitespace.", nameof(name));
+                throw new ArgumentException("Customer name cannot be empty or whitespace.", nameof(name));
 
             if (dateOfBirth >= DateOnly.FromDateTime(DateTime.Now))
                 throw new ArgumentException("Date of birth must be in the past.", nameof(dateOfBirth));
@@ -23,7 +23,7 @@ namespace HotelReservation.Domain.Entities
         public void UpdateName(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Name cannot be empty or whitespace.", nameof(name));
+                throw new ArgumentException("Customer name cannot be empty or whitespace.", nameof(name));
             Name = name.Trim();
         }
 

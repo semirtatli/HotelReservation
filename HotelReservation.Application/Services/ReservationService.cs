@@ -70,7 +70,8 @@ namespace HotelReservation.Application.Services
                 throw new ArgumentException($"Number of guests ({request.NumberOfGuests}) exceeds room capacity ({room.Capacity}).");
 
             var totalPrice = _pricingStrategy.Calculate(room, request.CheckInDate, request.CheckOutDate);
-            var reservation = await _reservationRepository.UpdateReservationAsync(id, request.CheckInDate, request.CheckOutDate, request.NumberOfGuests, totalPrice);
+            var updatedReservation = new Reservation(request.CheckInDate, request.CheckOutDate, existing.CustomerId, existing.RoomId, request.NumberOfGuests, totalPrice);
+            var reservation = await _reservationRepository.UpdateReservationAsync(id, updatedReservation);
             return MapToResponse(reservation);
         }
 
