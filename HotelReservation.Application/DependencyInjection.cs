@@ -20,9 +20,9 @@ namespace HotelReservation.Application
             services.AddScoped<IHotelService, HotelService>();
             services.AddScoped<IRoomService, RoomService>();
 
-            services.AddScoped<IPricingStrategy>(_ => new CompositePricingStrategy(
-                new IPricingModifier[] { new SeasonalPricingStrategy(), new LongStayDiscountStrategy() }
-            ));
+            services.AddScoped<IPricingModifier, SeasonalPricingStrategy>();
+            services.AddScoped<IPricingModifier, LongStayDiscountStrategy>();
+            services.AddScoped<IPricingStrategy, CompositePricingStrategy>();
 
             return services;
         }

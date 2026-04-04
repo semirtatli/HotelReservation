@@ -1,6 +1,5 @@
 using HotelReservation.Application.RepositoryInterfaces;
 using HotelReservation.Domain.Entities;
-using HotelReservation.Domain.Exceptions;
 using HotelReservation.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,26 +24,24 @@ namespace HotelReservation.Infrastructure.Repositories
             return await _context.Hotels.ToListAsync();
         }
 
-        public async Task<Hotel> GetHotelByIdAsync(Guid id)
+        public async Task<Hotel?> GetHotelByIdAsync(Guid id)
         {
-            var hotel = await _context.Hotels.FindAsync(id);
-            if (hotel is null) throw new NotFoundException("Hotel not found");
-            return hotel;
+            return await _context.Hotels.FindAsync(id);
         }
 
-        public async Task<Hotel> UpdateHotelAsync(Guid id, Hotel hotel)
+        public async Task<Hotel?> UpdateHotelAsync(Guid id, Hotel hotel)
         {
             var existingHotel = await _context.Hotels.FindAsync(id);
-            if (existingHotel is null) throw new NotFoundException("Hotel not found");
+            if (existingHotel is null) return null;
             existingHotel.UpdateName(hotel.Name);
             await _context.SaveChangesAsync();
             return existingHotel;
         }
 
-        public async Task<Hotel> DeleteHotelAsync(Guid id)
+        public async Task<Hotel?> DeleteHotelAsync(Guid id)
         {
             var hotel = await _context.Hotels.FindAsync(id);
-            if (hotel is null) throw new NotFoundException("Hotel not found");
+            if (hotel is null) return null;
             _context.Hotels.Remove(hotel);
             await _context.SaveChangesAsync();
             return hotel;

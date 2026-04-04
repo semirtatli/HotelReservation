@@ -1,6 +1,5 @@
 using HotelReservation.Application.RepositoryInterfaces;
 using HotelReservation.Domain.Entities;
-using HotelReservation.Domain.Exceptions;
 using HotelReservation.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,27 +24,25 @@ namespace HotelReservation.Infrastructure.Repositories
             return await _context.Customers.ToListAsync();
         }
 
-        public async Task<Customer> GetCustomerByIdAsync(Guid id)
+        public async Task<Customer?> GetCustomerByIdAsync(Guid id)
         {
-            var customer = await _context.Customers.FindAsync(id);
-            if (customer is null) throw new NotFoundException("Customer not found");
-            return customer;
+            return await _context.Customers.FindAsync(id);
         }
 
-        public async Task<Customer> UpdateCustomerAsync(Guid id, Customer customer)
+        public async Task<Customer?> UpdateCustomerAsync(Guid id, Customer customer)
         {
             var existingCustomer = await _context.Customers.FindAsync(id);
-            if (existingCustomer is null) throw new NotFoundException("Customer not found");
+            if (existingCustomer is null) return null;
             existingCustomer.UpdateName(customer.Name);
             existingCustomer.UpdateDateOfBirth(customer.DateOfBirth);
             await _context.SaveChangesAsync();
             return existingCustomer;
         }
 
-        public async Task<Customer> DeleteCustomerAsync(Guid id)
+        public async Task<Customer?> DeleteCustomerAsync(Guid id)
         {
             var customer = await _context.Customers.FindAsync(id);
-            if (customer is null) throw new NotFoundException("Customer not found");
+            if (customer is null) return null;
             _context.Customers.Remove(customer);
             await _context.SaveChangesAsync();
             return customer;

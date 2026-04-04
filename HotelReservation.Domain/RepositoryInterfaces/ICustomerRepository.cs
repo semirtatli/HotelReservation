@@ -6,8 +6,8 @@ namespace HotelReservation.Application.RepositoryInterfaces
     {
         Task AddCustomerAsync(Customer customer);
         Task<List<Customer>> GetAllCustomersAsync();
-        Task<Customer> GetCustomerByIdAsync(Guid id);
-        Task<Customer> UpdateCustomerAsync(Guid id, Customer customer);
-        Task<Customer> DeleteCustomerAsync(Guid id);
+        Task<Customer?> GetCustomerByIdAsync(Guid id);
+        Task<Customer?> UpdateCustomerAsync(Guid id, Customer customer);
+        Task<Customer?> DeleteCustomerAsync(Guid id);
     }
 }

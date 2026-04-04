@@ -7,8 +7,8 @@ namespace HotelReservation.Application.RepositoryInterfaces
     {
         Task AddRoomAsync(Room room);
         Task<List<Room>> GetAllRoomsAsync();
-        Task<Room> GetRoomByIdAsync(Guid id);
-        Task<Room> UpdateRoomAsync(Guid id, int capacity, decimal price, RoomType roomType);
-        Task<Room> DeleteRoomAsync(Guid id);
+        Task<Room?> GetRoomByIdAsync(Guid id);
+        Task<Room?> UpdateRoomAsync(Guid id, int capacity, decimal price, RoomType roomType);
+        Task<Room?> DeleteRoomAsync(Guid id);
     }
 }

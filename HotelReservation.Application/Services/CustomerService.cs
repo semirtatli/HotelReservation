@@ -1,8 +1,9 @@
 using FluentValidation;
 using HotelReservation.Application.DTO;
 using HotelReservation.Application.Interfaces;
+using HotelReservation.Application.Mappers;
 using HotelReservation.Application.RepositoryInterfaces;
-using HotelReservation.Domain.Entities;
+using HotelReservation.Domain.Exceptions;
 
 namespace HotelReservation.Application.Services
 {
@@ -22,41 +23,37 @@ namespace HotelReservation.Application.Services
         public async Task AddCustomerAsync(CustomerRequest customerRequest)
         {
             _customerRequestValidator.ValidateAndThrow(customerRequest);
-            var customer = new Customer(customerRequest.Name, customerRequest.DateOfBirth);
+            var customer = CustomerMapper.ToEntity(customerRequest);
             await _customerRepository.AddCustomerAsync(customer);
         }
 
         public async Task<List<CustomerResponse>> GetAllCustomersAsync()
         {
             var customers = await _customerRepository.GetAllCustomersAsync();
-            return customers.Select(MapToResponse).ToList();
+            return customers.Select(CustomerMapper.ToResponse).ToList();
         }
 
         public async Task<CustomerResponse> GetCustomerByIdAsync(Guid id)
         {
             var customer = await _customerRepository.GetCustomerByIdAsync(id);
-            return MapToResponse(customer);
+            if (customer is null) throw new NotFoundException("Customer not found");
+            return CustomerMapper.ToResponse(customer);
         }
 
         public async Task<CustomerResponse> UpdateCustomerAsync(Guid id, UpdateCustomerRequest updateCustomerRequest)
         {
             _updateCustomerRequestValidator.ValidateAndThrow(updateCustomerRequest);
-            var customerEntity = new Customer(updateCustomerRequest.Name, updateCustomerRequest.DateOfBirth);
+            var customerEntity = CustomerMapper.ToEntity(updateCustomerRequest);
             var updatedCustomer = await _customerRepository.UpdateCustomerAsync(id, customerEntity);
-            return MapToResponse(updatedCustomer);
+            if (updatedCustomer is null) throw new NotFoundException("Customer not found");
+            return CustomerMapper.ToResponse(updatedCustomer);
         }
 
         public async Task<CustomerResponse> DeleteCustomerAsync(Guid id)
         {
             var deletedCustomer = await _customerRepository.DeleteCustomerAsync(id);
-            return MapToResponse(deletedCustomer);
+            if (deletedCustomer is null) throw new NotFoundException("Customer not found");
+            return CustomerMapper.ToResponse(deletedCustomer);
         }
-
-        private static CustomerResponse MapToResponse(Customer customer) => new()
-        {
-            Id = customer.Id,
-            Name = customer.Name,
-            DateOfBirth = customer.DateOfBirth.ToString("dd/MM/yyyy")
-        };
     }
 }
