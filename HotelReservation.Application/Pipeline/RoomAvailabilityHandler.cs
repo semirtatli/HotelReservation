@@ -23,6 +23,7 @@ namespace HotelReservation.Application.Pipeline
             {
                 throw new RoomNotAvailableException("The selected room is not available for the specified dates.");
             }
-            await CallNextAsycn(context);
+            await CallNextAsync(context);
         }
+    }
 }

@@ -18,7 +18,7 @@ namespace HotelReservation.Application.Pipeline
         
         context.TotalPrice = _pricingStrategy.Calculate(context.Room, context.Request.CheckInDate, context.Request.CheckOutDate);
 
-        await CallNextAsycn(context);
+        await CallNextAsync(context);
         }
     }
 }
