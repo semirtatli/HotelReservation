@@ -10,13 +10,15 @@ namespace HotelReservation.Domain.Entities
         public DateOnly CheckOutDate { get; private set; }
 
         public Guid CustomerId { get; private set; }
-        public Customer Customer { get; private set; }
+        public Customer Customer { get; private set; } = null!;
         public Guid RoomId { get; private set; }
-        public Room Room { get; private set; }
+        public Room Room { get; private set; } = null!;
         public int NumberOfGuests { get; private set; }
 
         //yine de pricing service e koy çünkü sezonluk fiyatlandırma, indirimler vs. olabilir
         public decimal TotalPrice { get; private set; }
+
+        private Reservation() { }
 
         public Reservation(DateOnly checkInDate, DateOnly checkOutDate, Guid customerId, Guid roomId, int numberOfGuests, decimal totalPrice)
         {

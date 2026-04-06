@@ -6,6 +6,8 @@ namespace HotelReservation.Domain.Events
     (
         Guid ReservationId,
         Guid CustomerId,
+        string CustomerEmail,
+        string CustomerPhone,
         Guid RoomId,
         DateOnly CheckInDate,
         DateOnly CheckOutDate

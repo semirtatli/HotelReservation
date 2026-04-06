@@ -5,4 +5,5 @@
     <Project Path="HotelReservation.Domain/HotelReservation.Domain.csproj" />
     <Project Path="HotelReservation.Infrastructure/HotelReservation.Infrastructure.csproj" />
   </Folder>
+  <Project Path="HotelReservation.Tests/HotelReservation.Tests.csproj" />
 </Solution>

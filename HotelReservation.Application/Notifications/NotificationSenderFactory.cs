@@ -22,6 +22,6 @@ namespace HotelReservation.Application.Notifications
             NotificationType.Email => _emailSender,
             NotificationType.Sms => _smsSender,
             _ => throw new ArgumentException($"Unsupported notification type: {type}")
-     
+        };
     }
 }

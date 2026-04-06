@@ -21,7 +21,7 @@ namespace HotelReservation.Application.Notifications
         public async Task OnReservationCreatedAsync(ReservationCreatedEvent @event)
         {
             var message = _messageBuilder
-                .WithRecipient(@event.CustomerId.ToString())
+                .WithRecipient(@event.CustomerEmail)
                 .WithSubject("Your reservation has been created")
                 .WithReservationDetails(@event)
                 .Build();

@@ -1,5 +1,7 @@
 ﻿using FluentValidation;
 using HotelReservation.Application.Interfaces;
+using HotelReservation.Application.Notifications;
+using HotelReservation.Application.Pipeline;
 using HotelReservation.Application.Services;
 using HotelReservation.Application.Strategies;
 using HotelReservation.Application.Validators;
@@ -20,9 +22,21 @@ namespace HotelReservation.Application
             services.AddScoped<IHotelService, HotelService>();
             services.AddScoped<IRoomService, RoomService>();
 
+            // Pricing strategy
             services.AddScoped<IPricingModifier, SeasonalPricingStrategy>();
             services.AddScoped<IPricingModifier, LongStayDiscountStrategy>();
             services.AddScoped<IPricingStrategy, CompositePricingStrategy>();
+
+            // Chain handler’lar
+            services.AddScoped<RoomAvailabilityHandler>();
+            services.AddScoped<CapacityCheckHandler>();
+            services.AddScoped<PricingCalculationHandler>();
+
+            // Notification
+            services.AddScoped<SmsNotificationSender>();
+            services.AddScoped<NotificationMessageBuilder>();
+            services.AddScoped<IReservationObserver, LoggingObserver>();
+            services.AddScoped<IReservationObserver, NotificationObserver>();
 
             return services;
         }
