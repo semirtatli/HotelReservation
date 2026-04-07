@@ -17,6 +17,9 @@ appsettings.*.json
 *.nupkg
 .nuget/
 
+# Claude Code
+.claude/
+
 # Logs
 *.log
 logs/
