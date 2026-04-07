@@ -2,7 +2,7 @@ using FluentValidation;
 using HotelReservation.Application.DTO;
 using HotelReservation.Application.Interfaces;
 using HotelReservation.Application.Mappers;
-using HotelReservation.Application.RepositoryInterfaces;
+using HotelReservation.Domain.RepositoryInterfaces;
 using HotelReservation.Domain.Exceptions;
 
 namespace HotelReservation.Application.Services
@@ -31,10 +31,11 @@ namespace HotelReservation.Application.Services
         public async Task<HotelResponse> UpdateHotelAsync(Guid id, UpdateHotelRequest request)
         {
             _updateHotelRequestValidator.ValidateAndThrow(request);
-            var hotelEntity = HotelMapper.ToEntity(request);
-            var updatedHotel = await _hotelRepository.UpdateHotelAsync(id, hotelEntity);
-            if (updatedHotel is null) throw new NotFoundException("Hotel not found");
-            return HotelMapper.ToResponse(updatedHotel);
+            var hotel = await _hotelRepository.GetHotelByIdAsync(id);
+            if (hotel is null) throw new NotFoundException("Hotel not found");
+            hotel.UpdateName(request.Name);
+            await _hotelRepository.UpdateHotelAsync(hotel);
+            return HotelMapper.ToResponse(hotel);
         }
 
         public async Task<List<HotelResponse>> GetAllHotelsAsync()

@@ -1,4 +1,4 @@
-using HotelReservation.Application.RepositoryInterfaces;
+using HotelReservation.Domain.RepositoryInterfaces;
 using HotelReservation.Domain.Entities;
 using HotelReservation.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -29,13 +29,9 @@ namespace HotelReservation.Infrastructure.Repositories
             return await _context.Hotels.FindAsync(id);
         }
 
-        public async Task<Hotel?> UpdateHotelAsync(Guid id, Hotel hotel)
+        public async Task UpdateHotelAsync(Hotel hotel)
         {
-            var existingHotel = await _context.Hotels.FindAsync(id);
-            if (existingHotel is null) return null;
-            existingHotel.UpdateName(hotel.Name);
             await _context.SaveChangesAsync();
-            return existingHotel;
         }
 
         public async Task<Hotel?> DeleteHotelAsync(Guid id)

@@ -1,7 +1,7 @@
 using FluentAssertions;
 using FluentValidation;
 using HotelReservation.Application.DTO;
-using HotelReservation.Application.RepositoryInterfaces;
+using HotelReservation.Domain.RepositoryInterfaces;
 using HotelReservation.Application.Services;
 using HotelReservation.Application.Validators;
 using HotelReservation.Domain.Entities;
@@ -112,7 +112,7 @@ public class HotelServiceTests
     public async Task UpdateHotelAsync_WhenHotelNotFound_ShouldThrowNotFoundException()
     {
         var id = Guid.NewGuid();
-        _repoMock.Setup(r => r.UpdateHotelAsync(id, It.IsAny<Hotel>())).ReturnsAsync((Hotel?)null);
+        _repoMock.Setup(r => r.GetHotelByIdAsync(id)).ReturnsAsync((Hotel?)null);
 
         var act = async () => await _sut.UpdateHotelAsync(id, new UpdateHotelRequest { Name = "Hilton" });
 
@@ -123,8 +123,9 @@ public class HotelServiceTests
     public async Task UpdateHotelAsync_WhenRequestIsValid_ShouldReturnUpdatedResponse()
     {
         var id = Guid.NewGuid();
-        var updatedHotel = new Hotel("Hilton");
-        _repoMock.Setup(r => r.UpdateHotelAsync(id, It.IsAny<Hotel>())).ReturnsAsync(updatedHotel);
+        var existingHotel = new Hotel("Grand Hotel");
+        _repoMock.Setup(r => r.GetHotelByIdAsync(id)).ReturnsAsync(existingHotel);
+        _repoMock.Setup(r => r.UpdateHotelAsync(It.IsAny<Hotel>())).Returns(Task.CompletedTask);
 
         var result = await _sut.UpdateHotelAsync(id, new UpdateHotelRequest { Name = "Hilton" });
 
@@ -139,7 +140,7 @@ public class HotelServiceTests
         var act = async () => await _sut.UpdateHotelAsync(Guid.NewGuid(), new UpdateHotelRequest { Name = name });
 
         await act.Should().ThrowAsync<ValidationException>();
-        _repoMock.Verify(r => r.UpdateHotelAsync(It.IsAny<Guid>(), It.IsAny<Hotel>()), Times.Never);
+        _repoMock.Verify(r => r.UpdateHotelAsync(It.IsAny<Hotel>()), Times.Never);
     }
 
     // ───────────────────────────────────────────

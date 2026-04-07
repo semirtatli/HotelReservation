@@ -1,10 +1,10 @@
-﻿using HotelReservation.Domain.Events;
+using HotelReservation.Domain.Events;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace HotelReservation.Application.Notifications
+namespace HotelReservation.Application.Notifications.Observers
 {
     public class LoggingObserver : IReservationObserver
     {

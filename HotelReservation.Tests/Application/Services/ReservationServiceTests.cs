@@ -1,9 +1,9 @@
 using FluentAssertions;
 using FluentValidation;
 using HotelReservation.Application.DTO;
-using HotelReservation.Application.Notifications;
+using HotelReservation.Application.Notifications.Observers;
 using HotelReservation.Application.Pipeline;
-using HotelReservation.Application.RepositoryInterfaces;
+using HotelReservation.Domain.RepositoryInterfaces;
 using HotelReservation.Application.Services;
 using HotelReservation.Application.Strategies;
 using HotelReservation.Application.Validators;
@@ -42,6 +42,7 @@ public class ReservationServiceTests
         var availabilityHandler = new RoomAvailabilityHandler(_reservationRepoMock.Object);
         var capacityHandler = new CapacityCheckHandler();
         var pricingHandler = new PricingCalculationHandler(_pricingStrategyMock.Object);
+        availabilityHandler.SetNext(capacityHandler).SetNext(pricingHandler);
 
         _sut = new ReservationService(
             _reservationRepoMock.Object,
@@ -49,11 +50,8 @@ public class ReservationServiceTests
             _customerRepoMock.Object,
             new CreateReservationRequestValidator(),
             new UpdateReservationRequestValidator(),
-            _pricingStrategyMock.Object,
             [_observerMock.Object],
-            availabilityHandler,
-            capacityHandler,
-            pricingHandler);
+            availabilityHandler);
     }
 
     // ───────────────────────────────────────────
@@ -220,7 +218,9 @@ public class ReservationServiceTests
     {
         var id = Guid.NewGuid();
         var existing = CreateValidReservation();
+        var room = new Room(2, 100m, Guid.NewGuid(), RoomType.Standard);
         _reservationRepoMock.Setup(r => r.GetReservationByIdAsync(id)).ReturnsAsync(existing);
+        _roomRepoMock.Setup(r => r.GetRoomByIdAsync(existing.RoomId)).ReturnsAsync(room);
         _reservationRepoMock
             .Setup(r => r.IsRoomAvailableAsync(It.IsAny<Guid>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), id))
             .ReturnsAsync(false);
@@ -235,7 +235,6 @@ public class ReservationServiceTests
     {
         var id = Guid.NewGuid();
         var existing = CreateValidReservation();
-        var updated = CreateValidReservation();
         var room = new Room(2, 100m, Guid.NewGuid(), RoomType.Standard);
 
         _reservationRepoMock.Setup(r => r.GetReservationByIdAsync(id)).ReturnsAsync(existing);
@@ -246,7 +245,7 @@ public class ReservationServiceTests
         _pricingStrategyMock
             .Setup(p => p.Calculate(It.IsAny<Room>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
             .Returns(500m);
-        _reservationRepoMock.Setup(r => r.UpdateReservationAsync(id, It.IsAny<Reservation>())).ReturnsAsync(updated);
+        _reservationRepoMock.Setup(r => r.UpdateReservationAsync(It.IsAny<Reservation>())).Returns(Task.CompletedTask);
 
         var result = await _sut.UpdateReservationAsync(id, CreateValidUpdateRequest());
 

@@ -1,6 +1,6 @@
 using HotelReservation.Domain.Entities;
 
-namespace HotelReservation.Application.RepositoryInterfaces
+namespace HotelReservation.Domain.RepositoryInterfaces
 {
     public interface IReservationRepository
     {
@@ -8,7 +8,7 @@ namespace HotelReservation.Application.RepositoryInterfaces
         Task<bool> IsRoomAvailableAsync(Guid roomId, DateOnly checkInDate, DateOnly checkOutDate, Guid? excludeReservationId = null);
         Task<List<Reservation>> GetAllReservationsAsync();
         Task<Reservation?> GetReservationByIdAsync(Guid id);
-        Task<Reservation?> UpdateReservationAsync(Guid id, Reservation reservation);
+        Task UpdateReservationAsync(Reservation reservation);
         Task<Reservation?> DeleteReservationAsync(Guid id);
     }
 }

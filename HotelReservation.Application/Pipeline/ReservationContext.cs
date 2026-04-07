@@ -1,14 +1,14 @@
-﻿using HotelReservation.Application.DTO;
 using HotelReservation.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace HotelReservation.Application.Pipeline
 {
     public class ReservationContext
     {
-        public CreateReservationRequest Request { get; set; } = null!;
+        public Guid RoomId { get; init; }
+        public DateOnly CheckInDate { get; init; }
+        public DateOnly CheckOutDate { get; init; }
+        public int NumberOfGuests { get; init; }
+        public Guid? ExcludeReservationId { get; init; }
         public Room Room { get; set; } = null!;
         public decimal TotalPrice { get; set; }
     }

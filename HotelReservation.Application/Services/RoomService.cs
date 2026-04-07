@@ -2,7 +2,7 @@ using FluentValidation;
 using HotelReservation.Application.DTO;
 using HotelReservation.Application.Interfaces;
 using HotelReservation.Application.Mappers;
-using HotelReservation.Application.RepositoryInterfaces;
+using HotelReservation.Domain.RepositoryInterfaces;
 using HotelReservation.Domain.Exceptions;
 
 namespace HotelReservation.Application.Services
@@ -44,8 +44,12 @@ namespace HotelReservation.Application.Services
         public async Task<RoomResponse> UpdateRoomAsync(Guid id, UpdateRoomRequest request)
         {
             _updateRoomRequestValidator.ValidateAndThrow(request);
-            var room = await _roomRepository.UpdateRoomAsync(id, request.Capacity, request.Price, request.RoomType);
+            var room = await _roomRepository.GetRoomByIdAsync(id);
             if (room is null) throw new NotFoundException("Room not found");
+            room.UpdateCapacity(request.Capacity);
+            room.UpdatePrice(request.Price);
+            room.UpdateRoomType(request.RoomType);
+            await _roomRepository.UpdateRoomAsync(room);
             return RoomMapper.ToResponse(room);
         }
 

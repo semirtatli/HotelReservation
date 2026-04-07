@@ -1,7 +1,6 @@
 using FluentAssertions;
-using HotelReservation.Application.DTO;
 using HotelReservation.Application.Pipeline;
-using HotelReservation.Application.RepositoryInterfaces;
+using HotelReservation.Domain.RepositoryInterfaces;
 using HotelReservation.Domain.Entities;
 using HotelReservation.Domain.Enums;
 using HotelReservation.Domain.Exceptions;
@@ -55,14 +54,10 @@ public class RoomAvailabilityHandlerTests
 
     private static ReservationContext CreateContext() => new()
     {
-        Request = new CreateReservationRequest
-        {
-            RoomId = Guid.NewGuid(),
-            CustomerId = Guid.NewGuid(),
-            NumberOfGuests = 1,
-            CheckInDate = CheckIn,
-            CheckOutDate = CheckOut
-        },
+        RoomId = Guid.NewGuid(),
+        CheckInDate = CheckIn,
+        CheckOutDate = CheckOut,
+        NumberOfGuests = 1,
         Room = new Room(2, 100m, Guid.NewGuid(), RoomType.Standard)
     };
 }

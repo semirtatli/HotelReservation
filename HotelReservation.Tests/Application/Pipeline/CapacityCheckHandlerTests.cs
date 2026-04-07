@@ -1,5 +1,4 @@
 using FluentAssertions;
-using HotelReservation.Application.DTO;
 using HotelReservation.Application.Pipeline;
 using HotelReservation.Domain.Entities;
 using HotelReservation.Domain.Enums;
@@ -52,14 +51,10 @@ public class CapacityCheckHandlerTests
 
     private static ReservationContext CreateContext(int numberOfGuests, int roomCapacity) => new()
     {
-        Request = new CreateReservationRequest
-        {
-            RoomId = Guid.NewGuid(),
-            CustomerId = Guid.NewGuid(),
-            NumberOfGuests = numberOfGuests,
-            CheckInDate = CheckIn,
-            CheckOutDate = CheckOut
-        },
+        RoomId = Guid.NewGuid(),
+        CheckInDate = CheckIn,
+        CheckOutDate = CheckOut,
+        NumberOfGuests = numberOfGuests,
         Room = new Room(roomCapacity, 100m, Guid.NewGuid(), RoomType.Standard)
     };
 }

@@ -1,4 +1,4 @@
-﻿using HotelReservation.Domain.Enums;
+using HotelReservation.Domain.Enums;
 using System;
 
 namespace HotelReservation.Domain.Entities
@@ -13,47 +13,41 @@ namespace HotelReservation.Domain.Entities
         public RoomType RoomType { get; private set; }
 
         private static readonly Dictionary<RoomType, decimal> PriceMultipliers = new()
-    {
-        { RoomType.Standard, 1.0m },
-        { RoomType.Deluxe,   1.5m },
-        { RoomType.Suite,    2.5m }
-    };
-
-
+        {
+            { RoomType.Standard, 1.0m },
+            { RoomType.Deluxe,   1.5m },
+            { RoomType.Suite,    2.5m }
+        };
 
         public Room(int capacity, decimal basePrice, Guid hotelId, RoomType roomType)
         {
-            if (capacity <= 0) throw new ArgumentOutOfRangeException(nameof(capacity));
-            if (basePrice < 0) throw new ArgumentOutOfRangeException(nameof(basePrice));
             Id = Guid.NewGuid();
-            Capacity = capacity;
-            BasePrice = basePrice;
+            Capacity = ValidateCapacity(capacity);
+            BasePrice = ValidateBasePrice(basePrice);
             HotelId = hotelId;
             RoomType = roomType;
         }
 
         private Room() { }
-        public void UpdateCapacity(int capacity)
+
+        public void UpdateCapacity(int capacity) => Capacity = ValidateCapacity(capacity);
+
+        public void UpdatePrice(decimal price) => BasePrice = ValidateBasePrice(price);
+
+        public void UpdateRoomType(RoomType roomType) => RoomType = roomType;
+
+        public decimal GetPricePerNight() => BasePrice * PriceMultipliers[RoomType];
+
+        private static int ValidateCapacity(int capacity)
         {
             if (capacity <= 0) throw new ArgumentOutOfRangeException(nameof(capacity));
-            Capacity = capacity;
+            return capacity;
         }
 
-        public void UpdatePrice(decimal price)
+        private static decimal ValidateBasePrice(decimal price)
         {
             if (price < 0) throw new ArgumentOutOfRangeException(nameof(price));
-            BasePrice = price;
-        }
-
-        public decimal GetPricePerNight()
-        {
-            return BasePrice * PriceMultipliers[RoomType];
-
-        }
-
-        public void UpdateRoomType(RoomType roomType)
-        {
-            RoomType = roomType;
+            return price;
         }
     }
 }

@@ -2,7 +2,7 @@ using FluentValidation;
 using HotelReservation.Application.DTO;
 using HotelReservation.Application.Interfaces;
 using HotelReservation.Application.Mappers;
-using HotelReservation.Application.RepositoryInterfaces;
+using HotelReservation.Domain.RepositoryInterfaces;
 using HotelReservation.Domain.Exceptions;
 
 namespace HotelReservation.Application.Services
@@ -40,13 +40,17 @@ namespace HotelReservation.Application.Services
             return CustomerMapper.ToResponse(customer);
         }
 
-        public async Task<CustomerResponse> UpdateCustomerAsync(Guid id, UpdateCustomerRequest updateCustomerRequest)
+        public async Task<CustomerResponse> UpdateCustomerAsync(Guid id, UpdateCustomerRequest request)
         {
-            _updateCustomerRequestValidator.ValidateAndThrow(updateCustomerRequest);
-            var customerEntity = CustomerMapper.ToEntity(updateCustomerRequest);
-            var updatedCustomer = await _customerRepository.UpdateCustomerAsync(id, customerEntity);
-            if (updatedCustomer is null) throw new NotFoundException("Customer not found");
-            return CustomerMapper.ToResponse(updatedCustomer);
+            _updateCustomerRequestValidator.ValidateAndThrow(request);
+            var customer = await _customerRepository.GetCustomerByIdAsync(id);
+            if (customer is null) throw new NotFoundException("Customer not found");
+            customer.UpdateName(request.Name);
+            customer.UpdateDateOfBirth(request.DateOfBirth);
+            customer.UpdateEmail(request.Email);
+            customer.UpdatePhoneNumber(request.PhoneNumber);
+            await _customerRepository.UpdateCustomerAsync(customer);
+            return CustomerMapper.ToResponse(customer);
         }
 
         public async Task<CustomerResponse> DeleteCustomerAsync(Guid id)

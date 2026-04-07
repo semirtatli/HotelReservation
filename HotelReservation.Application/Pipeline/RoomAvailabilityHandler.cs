@@ -1,4 +1,4 @@
-﻿using HotelReservation.Application.RepositoryInterfaces;
+﻿using HotelReservation.Domain.RepositoryInterfaces;
 using HotelReservation.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
@@ -18,11 +18,9 @@ namespace HotelReservation.Application.Pipeline
         public override async Task HandleAsync(ReservationContext context)
         {
             var isAvailable = await _reservationRepository.IsRoomAvailableAsync(
-                context.Request.RoomId, context.Request.CheckInDate, context.Request.CheckOutDate);
+                context.RoomId, context.CheckInDate, context.CheckOutDate, context.ExcludeReservationId);
             if (!isAvailable)
-            {
                 throw new RoomNotAvailableException("The selected room is not available for the specified dates.");
-            }
             await CallNextAsync(context);
         }
     }

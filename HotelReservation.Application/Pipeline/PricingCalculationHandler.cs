@@ -14,11 +14,10 @@ namespace HotelReservation.Application.Pipeline
             _pricingStrategy = pricingStrategy;
         }
 
-        public override async Task HandleAsync(ReservationContext context) {
-        
-        context.TotalPrice = _pricingStrategy.Calculate(context.Room, context.Request.CheckInDate, context.Request.CheckOutDate);
-
-        await CallNextAsync(context);
+        public override async Task HandleAsync(ReservationContext context)
+        {
+            context.TotalPrice = _pricingStrategy.Calculate(context.Room, context.CheckInDate, context.CheckOutDate);
+            await CallNextAsync(context);
         }
     }
 }

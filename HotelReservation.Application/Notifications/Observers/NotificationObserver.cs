@@ -1,9 +1,11 @@
-﻿using HotelReservation.Domain.Events;
+using HotelReservation.Application.Notifications.Models;
+using HotelReservation.Application.Notifications.Senders;
+using HotelReservation.Domain.Events;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace HotelReservation.Application.Notifications
+namespace HotelReservation.Application.Notifications.Observers
 {
     public class NotificationObserver : IReservationObserver
     {

@@ -1,6 +1,5 @@
-using HotelReservation.Application.RepositoryInterfaces;
+using HotelReservation.Domain.RepositoryInterfaces;
 using HotelReservation.Domain.Entities;
-using HotelReservation.Domain.Enums;
 using HotelReservation.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,15 +29,9 @@ namespace HotelReservation.Infrastructure.Repositories
             return await _context.Rooms.FindAsync(id);
         }
 
-        public async Task<Room?> UpdateRoomAsync(Guid id, int capacity, decimal price, RoomType roomType)
+        public async Task UpdateRoomAsync(Room room)
         {
-            var existingRoom = await _context.Rooms.FindAsync(id);
-            if (existingRoom is null) return null;
-            existingRoom.UpdateCapacity(capacity);
-            existingRoom.UpdatePrice(price);
-            existingRoom.UpdateRoomType(roomType);
             await _context.SaveChangesAsync();
-            return existingRoom;
         }
 
         public async Task<Room?> DeleteRoomAsync(Guid id)

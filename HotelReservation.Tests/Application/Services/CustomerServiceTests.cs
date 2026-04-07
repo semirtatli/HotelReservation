@@ -1,7 +1,7 @@
 using FluentAssertions;
 using FluentValidation;
 using HotelReservation.Application.DTO;
-using HotelReservation.Application.RepositoryInterfaces;
+using HotelReservation.Domain.RepositoryInterfaces;
 using HotelReservation.Application.Services;
 using HotelReservation.Application.Validators;
 using HotelReservation.Domain.Entities;
@@ -127,7 +127,7 @@ public class CustomerServiceTests
     public async Task UpdateCustomerAsync_WhenCustomerNotFound_ShouldThrowNotFoundException()
     {
         var id = Guid.NewGuid();
-        _repoMock.Setup(r => r.UpdateCustomerAsync(id, It.IsAny<Customer>())).ReturnsAsync((Customer?)null);
+        _repoMock.Setup(r => r.GetCustomerByIdAsync(id)).ReturnsAsync((Customer?)null);
 
         var act = async () => await _sut.UpdateCustomerAsync(id, CreateValidUpdateRequest());
 
@@ -138,10 +138,18 @@ public class CustomerServiceTests
     public async Task UpdateCustomerAsync_WhenRequestIsValid_ShouldReturnUpdatedResponse()
     {
         var id = Guid.NewGuid();
-        var updatedCustomer = new Customer("Yeni Ali", new DateOnly(1990, 1, 1), "yeni@test.com", "999");
-        _repoMock.Setup(r => r.UpdateCustomerAsync(id, It.IsAny<Customer>())).ReturnsAsync(updatedCustomer);
+        var existingCustomer = new Customer("Ali", new DateOnly(1990, 1, 1), "ali@test.com", "555");
+        var updateRequest = new UpdateCustomerRequest
+        {
+            Name = "Yeni Ali",
+            DateOfBirth = new DateOnly(1990, 1, 1),
+            Email = "yeni@test.com",
+            PhoneNumber = "999"
+        };
+        _repoMock.Setup(r => r.GetCustomerByIdAsync(id)).ReturnsAsync(existingCustomer);
+        _repoMock.Setup(r => r.UpdateCustomerAsync(It.IsAny<Customer>())).Returns(Task.CompletedTask);
 
-        var result = await _sut.UpdateCustomerAsync(id, CreateValidUpdateRequest());
+        var result = await _sut.UpdateCustomerAsync(id, updateRequest);
 
         result.Name.Should().Be("Yeni Ali");
         result.Email.Should().Be("yeni@test.com");
@@ -156,7 +164,7 @@ public class CustomerServiceTests
         var act = async () => await _sut.UpdateCustomerAsync(Guid.NewGuid(), request);
 
         await act.Should().ThrowAsync<ValidationException>();
-        _repoMock.Verify(r => r.UpdateCustomerAsync(It.IsAny<Guid>(), It.IsAny<Customer>()), Times.Never);
+        _repoMock.Verify(r => r.UpdateCustomerAsync(It.IsAny<Customer>()), Times.Never);
     }
 
     // ───────────────────────────────────────────

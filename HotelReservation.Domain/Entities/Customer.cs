@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace HotelReservation.Domain.Entities
 {
@@ -14,48 +14,44 @@ namespace HotelReservation.Domain.Entities
 
         public Customer(string name, DateOnly dateOfBirth, string email, string phoneNumber)
         {
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Customer name cannot be empty or whitespace.", nameof(name));
-            if (dateOfBirth >= DateOnly.FromDateTime(DateTime.Now))
-                throw new ArgumentException("Date of birth must be in the past.", nameof(dateOfBirth));
-            if (string.IsNullOrWhiteSpace(email))
-                throw new ArgumentException("Email cannot be empty or whitespace.", nameof(email));
-            if (string.IsNullOrWhiteSpace(phoneNumber))
-                throw new ArgumentException("Phone number cannot be empty or whitespace.", nameof(phoneNumber));
-
             Id = Guid.NewGuid();
-            Name = name.Trim();
-            DateOfBirth = dateOfBirth;
-            Email = email.Trim();
-            PhoneNumber = phoneNumber.Trim();
+            Name = ValidateName(name);
+            DateOfBirth = ValidateDateOfBirth(dateOfBirth);
+            Email = ValidateEmail(email);
+            PhoneNumber = ValidatePhoneNumber(phoneNumber);
         }
 
-        public void UpdateName(string name)
+        public void UpdateName(string name) => Name = ValidateName(name);
+        public void UpdateDateOfBirth(DateOnly dateOfBirth) => DateOfBirth = ValidateDateOfBirth(dateOfBirth);
+        public void UpdateEmail(string email) => Email = ValidateEmail(email);
+        public void UpdatePhoneNumber(string phoneNumber) => PhoneNumber = ValidatePhoneNumber(phoneNumber);
+
+        private static string ValidateName(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Customer name cannot be empty or whitespace.", nameof(name));
-            Name = name.Trim();
+            return name.Trim();
         }
 
-        public void UpdateDateOfBirth(DateOnly dateOfBirth)
+        private static DateOnly ValidateDateOfBirth(DateOnly dateOfBirth)
         {
             if (dateOfBirth >= DateOnly.FromDateTime(DateTime.Now))
                 throw new ArgumentException("Date of birth must be in the past.", nameof(dateOfBirth));
-            DateOfBirth = dateOfBirth;
+            return dateOfBirth;
         }
 
-        public void UpdateEmail(string email)
+        private static string ValidateEmail(string email)
         {
             if (string.IsNullOrWhiteSpace(email))
                 throw new ArgumentException("Email cannot be empty or whitespace.", nameof(email));
-            Email = email.Trim();
+            return email.Trim();
         }
 
-        public void UpdatePhoneNumber(string phoneNumber)
+        private static string ValidatePhoneNumber(string phoneNumber)
         {
             if (string.IsNullOrWhiteSpace(phoneNumber))
                 throw new ArgumentException("Phone number cannot be empty or whitespace.", nameof(phoneNumber));
-            PhoneNumber = phoneNumber.Trim();
+            return phoneNumber.Trim();
         }
     }
 }

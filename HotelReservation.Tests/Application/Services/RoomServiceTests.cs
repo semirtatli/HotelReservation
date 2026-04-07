@@ -1,7 +1,7 @@
 using FluentAssertions;
 using FluentValidation;
 using HotelReservation.Application.DTO;
-using HotelReservation.Application.RepositoryInterfaces;
+using HotelReservation.Domain.RepositoryInterfaces;
 using HotelReservation.Application.Services;
 using HotelReservation.Application.Validators;
 using HotelReservation.Domain.Entities;
@@ -127,8 +127,7 @@ public class RoomServiceTests
     public async Task UpdateRoomAsync_WhenRoomNotFound_ShouldThrowNotFoundException()
     {
         var id = Guid.NewGuid();
-        _repoMock.Setup(r => r.UpdateRoomAsync(id, It.IsAny<int>(), It.IsAny<decimal>(), It.IsAny<RoomType>()))
-                 .ReturnsAsync((Room?)null);
+        _repoMock.Setup(r => r.GetRoomByIdAsync(id)).ReturnsAsync((Room?)null);
 
         var act = async () => await _sut.UpdateRoomAsync(id, CreateValidUpdateRoomRequest());
 
@@ -139,9 +138,9 @@ public class RoomServiceTests
     public async Task UpdateRoomAsync_WhenRequestIsValid_ShouldReturnUpdatedResponse()
     {
         var id = Guid.NewGuid();
-        var updatedRoom = new Room(3, 150m, Guid.NewGuid(), RoomType.Deluxe);
-        _repoMock.Setup(r => r.UpdateRoomAsync(id, It.IsAny<int>(), It.IsAny<decimal>(), It.IsAny<RoomType>()))
-                 .ReturnsAsync(updatedRoom);
+        var existingRoom = new Room(2, 100m, Guid.NewGuid(), RoomType.Standard);
+        _repoMock.Setup(r => r.GetRoomByIdAsync(id)).ReturnsAsync(existingRoom);
+        _repoMock.Setup(r => r.UpdateRoomAsync(It.IsAny<Room>())).Returns(Task.CompletedTask);
 
         var result = await _sut.UpdateRoomAsync(id, CreateValidUpdateRoomRequest());
 
@@ -157,7 +156,7 @@ public class RoomServiceTests
         var act = async () => await _sut.UpdateRoomAsync(Guid.NewGuid(), request);
 
         await act.Should().ThrowAsync<ValidationException>();
-        _repoMock.Verify(r => r.UpdateRoomAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<decimal>(), It.IsAny<RoomType>()), Times.Never);
+        _repoMock.Verify(r => r.UpdateRoomAsync(It.IsAny<Room>()), Times.Never);
     }
 
     // ───────────────────────────────────────────

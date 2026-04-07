@@ -1,9 +1,11 @@
-﻿using System;
+using HotelReservation.Application.Configuration;
+using HotelReservation.Application.Notifications.Models;
+using HotelReservation.Application.Notifications.Senders;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using HotelReservation.Application.Configuration;
 
-namespace HotelReservation.Application.Notifications
+namespace HotelReservation.Application.Notifications.Decorators
 {
     public class RetryNotificationDecorator : INotificationSender
     {

@@ -1,9 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
+using HotelReservation.Application.Notifications.Models;
+using HotelReservation.Application.Notifications.Senders;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace HotelReservation.Application.Notifications
+namespace HotelReservation.Application.Notifications.Decorators
 {
     public class LoggingNotificationDecorator : INotificationSender
     {

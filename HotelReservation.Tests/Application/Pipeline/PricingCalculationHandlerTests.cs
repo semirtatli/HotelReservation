@@ -1,5 +1,4 @@
 using FluentAssertions;
-using HotelReservation.Application.DTO;
 using HotelReservation.Application.Pipeline;
 using HotelReservation.Application.Strategies;
 using HotelReservation.Domain.Entities;
@@ -54,14 +53,10 @@ public class PricingCalculationHandlerTests
 
     private static ReservationContext CreateContext() => new()
     {
-        Request = new CreateReservationRequest
-        {
-            RoomId = Guid.NewGuid(),
-            CustomerId = Guid.NewGuid(),
-            NumberOfGuests = 1,
-            CheckInDate = CheckIn,
-            CheckOutDate = CheckOut
-        },
+        RoomId = Guid.NewGuid(),
+        CheckInDate = CheckIn,
+        CheckOutDate = CheckOut,
+        NumberOfGuests = 1,
         Room = new Room(2, 100m, Guid.NewGuid(), RoomType.Standard)
     };
 }
